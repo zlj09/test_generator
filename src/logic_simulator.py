@@ -12,6 +12,9 @@ class Node:
     def addDriving(self, node):
         self.driving.append(node)
 
+    def getValue(self):
+        raise NotImplementedError
+
     def __init__(self):
         self.driven = []
         self.driving = []
@@ -31,7 +34,18 @@ class Gate(Node):
 
     def getValue(self):
         value_list = []
-        unknown_list []
+        unknown_list = []
+        for wire in self.driven:
+            if wire.getValue() == -1:
+                unknown_list.append(wire)
+            else:
+                value_list.append(wire.getValue())
+        if unknown_list:
+            return(-1, unknown_list)
+        else:
+            value_tuple = tuple(value_list)
+            output_value = self.truth_table[value_tuple]
+            return(output_value, unknown_list)
         
 class Wire(Node):
     def __init__(self, index):
@@ -41,6 +55,12 @@ class Wire(Node):
     
     def __str__(self):
         return("Node " + self.index + ", " + super(Wire, self).__str__())
+    
+    def getValue(self):
+        return(self.value)
+
+    def setValue(self, value):
+        self.value = value
 
 class Circuit:
     def getWire(self, index):
@@ -95,31 +115,46 @@ class Circuit:
 
     def initWire(self, inputs):
         for wire in self.wire_dict.values():
-            wire.value = -1
-        for i in len(inputs):
-            self.input_list[i].value = inputs[i]
+            wire.setValue(-1)
+        for i in range(len(inputs)):
+            self.input_list[i].setValue(inputs[i])
 
     def getOutputs(self, inputs):
         self.initWire(inputs)
         wire_stack = []
+        output_list = []
         for output_wire in self.output_list:
             wire_stack.append(output_wire)
+            output_value = -1
             while (wire_stack):
                 wire = wire_stack.pop()
-                if (wire.value == -1):
+                if wire.getValue() == -1:
                     gate = wire.driven[0]
-                    unknown_cnt = 0
-                    tmp_stack = []
-                    for driving_wire in gate.driving:
-                        if (driving_wire.vaule == -1):
-                            unknown_cnt = unknown_cnt + 1
-                            tmp_stack.append(driving_wire)
+                    output_value, unknown_list = gate.getValue()
+                    if output_value == -1:
+                        wire_stack.append(wire)
+                        wire_stack = wire_stack + unknown_list
+                    else:
+                        wire.setValue(output_value)
+
+            output_list.append(output_value)
+            print(str(output_value) + " ")
+        
+        
             
                 
 if __name__ == "__main__":
     cir1 = Circuit("and_or")
     print(cir1.wire_dict)
     print(cir1)
+    cir1.getOutputs([0, 0, 0])
+    cir1.getOutputs([0, 0, 1])
+    cir1.getOutputs([0, 1, 0])
+    cir1.getOutputs([0, 1, 1])
+    cir1.getOutputs([1, 0, 0])
+    cir1.getOutputs([1, 0, 1])
+    cir1.getOutputs([1, 1, 0])
+    cir1.getOutputs([1, 1, 1])
 
 
     
