@@ -1,8 +1,12 @@
 import re
 
 truth_table_dict = {
+    "BUF" : {(0,) : 0, (1,) : 1},
+    "INV" : {(0,) : 1, (1,) : 0},
     "AND" : {(0, 0) : 0, (0, 1): 0, (1, 0): 0, (1, 1): 1},
-    "OR" : {(0, 0) : 0, (0, 1): 1, (1, 0): 1, (1, 1): 1}
+    "OR" : {(0, 0) : 0, (0, 1): 1, (1, 0): 1, (1, 1): 1},
+    "NAND" : {(0, 0) : 1, (0, 1): 1, (1, 0): 1, (1, 1): 0},
+    "NOR" : {(0, 0) : 1, (0, 1): 0, (1, 0): 0, (1, 1): 0},
 }
 
 class Node:
@@ -77,13 +81,14 @@ class Circuit:
         self.input_list = []
         self.output_list = []
 
-        fp = open("C:/Users/lzhu308/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/inputs/and_or.txt", "r")
+        fp = open("C:/Users/lzhu308/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/inputs/" + cir_name + ".txt", "r")
         cir_lines = fp.readlines()
 
         for line in cir_lines:
             if line[-1] == '\n':
                 line = line[:-1]
-            words = re.split(' ',line)
+            words = line.split(" ")
+            words = list(filter(None, words))
 
             if words[0] == "INPUT":
                 for index in words[1 : -1]:
@@ -136,6 +141,8 @@ class Circuit:
                         wire_stack = wire_stack + unknown_list
                     else:
                         wire.setValue(output_value)
+                else:
+                    output_value = wire.getValue()
 
             output_list.append(output_value)
             print(str(output_value) + " ")
@@ -155,6 +162,9 @@ if __name__ == "__main__":
     cir1.getOutputs([1, 0, 1])
     cir1.getOutputs([1, 1, 0])
     cir1.getOutputs([1, 1, 1])
+
+    cir2 = Circuit("s27")
+    cir2.getOutputs([1,1,1,0,1,0,1])
 
 
     
