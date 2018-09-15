@@ -1,5 +1,3 @@
-import re
-
 truth_table_dict = {
     "BUF" : {(0,) : 0, (1,) : 1},
     "INV" : {(0,) : 1, (1,) : 0},
@@ -75,13 +73,13 @@ class Circuit:
             self.wire_dict[index] = wire
             return(wire)
 
-    def __init__(self, cir_name):
+    def __init__(self, cir_path):
         self.wire_dict = {}
         self.gate_dict = {}
         self.input_list = []
         self.output_list = []
 
-        fp = open("C:/Users/lzhu308/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/inputs/" + cir_name + ".txt", "r")
+        fp = open(cir_path, "r")
         cir_lines = fp.readlines()
 
         for line in cir_lines:
@@ -151,7 +149,7 @@ class Circuit:
             
                 
 if __name__ == "__main__":
-    cir1 = Circuit("and_or")
+    cir1 = Circuit("C:/Users/zlj52/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/inputs/and_or.txt")
     print(cir1.wire_dict)
     print(cir1)
     cir1.getOutputs([0, 0, 0])
@@ -163,7 +161,7 @@ if __name__ == "__main__":
     cir1.getOutputs([1, 1, 0])
     cir1.getOutputs([1, 1, 1])
 
-    cir2 = Circuit("s27")
+    cir2 = Circuit("C:/Users/zlj52/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/inputs/s27.txt")
     cir2.getOutputs([1,1,1,0,1,0,1])
 
 
