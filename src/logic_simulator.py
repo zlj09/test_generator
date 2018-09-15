@@ -122,7 +122,8 @@ class Circuit:
         for i in range(len(inputs)):
             self.input_list[i].setValue(inputs[i])
 
-    def getOutputs(self, inputs):
+    def getOutputs(self, inputs_str):
+        inputs = [int(digit) for digit in inputs_str]
         self.initWire(inputs)
         wire_stack = []
         output_list = []
@@ -143,26 +144,26 @@ class Circuit:
                     output_value = wire.getValue()
 
             output_list.append(output_value)
-            print(str(output_value) + " ")
+            print(output_value, end = ' ')
+        
+        print("")
         
         
             
                 
 if __name__ == "__main__":
-    cir1 = Circuit("C:/Users/zlj52/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/inputs/and_or.txt")
-    print(cir1.wire_dict)
-    print(cir1)
-    cir1.getOutputs([0, 0, 0])
-    cir1.getOutputs([0, 0, 1])
-    cir1.getOutputs([0, 1, 0])
-    cir1.getOutputs([0, 1, 1])
-    cir1.getOutputs([1, 0, 0])
-    cir1.getOutputs([1, 0, 1])
-    cir1.getOutputs([1, 1, 0])
-    cir1.getOutputs([1, 1, 1])
+    cir1 = Circuit("C:/Users/zlj52/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/circuits/and_or.txt")
+    cir1.getOutputs("000")
+    cir1.getOutputs("001")
+    cir1.getOutputs("010")
+    cir1.getOutputs("011")
+    cir1.getOutputs("100")
+    cir1.getOutputs("101")
+    cir1.getOutputs("110")
+    cir1.getOutputs("111")
 
-    cir2 = Circuit("C:/Users/zlj52/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/inputs/s27.txt")
-    cir2.getOutputs([1,1,1,0,1,0,1])
+    cir2 = Circuit("C:/Users/zlj52/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/circuits/s27.txt")
+    cir2.getOutputs("1110101")
 
 
     
