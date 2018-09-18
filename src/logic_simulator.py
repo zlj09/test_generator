@@ -87,6 +87,8 @@ class Circuit:
                 line = line[:-1]
             words = line.split(" ")
             words = list(filter(None, words))
+            if words == []:
+                continue
 
             if words[0] == "INPUT":
                 for index in words[1 : -1]:
@@ -144,26 +146,74 @@ class Circuit:
                     output_value = wire.getValue()
 
             output_list.append(output_value)
-            print(output_value, end = ' ')
+            print(output_value, end = '')
         
         print("")
+        return(output_list)
         
         
             
                 
 if __name__ == "__main__":
-    cir1 = Circuit("C:/Users/zlj52/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/circuits/and_or.txt")
-    cir1.getOutputs("000")
-    cir1.getOutputs("001")
-    cir1.getOutputs("010")
-    cir1.getOutputs("011")
-    cir1.getOutputs("100")
-    cir1.getOutputs("101")
-    cir1.getOutputs("110")
-    cir1.getOutputs("111")
+    # cir0 = Circuit("C:/Users/lzhu308/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/circuits/and_or.txt")
+    # cir0.getOutputs("000")
+    # cir0.getOutputs("001")
+    # cir0.getOutputs("010")
+    # cir0.getOutputs("011")
+    # cir0.getOutputs("100")
+    # cir0.getOutputs("101")
+    # cir0.getOutputs("110")
+    # cir0.getOutputs("111")
 
-    cir2 = Circuit("C:/Users/zlj52/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/circuits/s27.txt")
-    cir2.getOutputs("1110101")
+    cir1 = Circuit("C:/Users/lzhu308/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/circuits/s27.txt")
+    cir1.getOutputs("1110101")
+    cir1.getOutputs("0001010")
+    cir1.getOutputs("1010101")
+    cir1.getOutputs("0110111")
+    cir1.getOutputs("1010001")
+
+    cir2 = Circuit("C:/Users/lzhu308/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/circuits/s298f_2.txt")
+    cir2.getOutputs("10101010101010101")
+    cir2.getOutputs("01011110000000111")
+    cir2.getOutputs("11111000001111000")
+    cir2.getOutputs("11100001110001100")
+    cir2.getOutputs("01111011110000000")
+
+    cir3 = Circuit("C:/Users/lzhu308/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/circuits/s344f_2.txt")
+    cir3.getOutputs("101010101010101011111111")
+    cir3.getOutputs("010111100000001110000000")
+    cir3.getOutputs("111110000011110001111111")
+    cir3.getOutputs("111000011100011000000000")
+    cir3.getOutputs("011110111100000001111111")
+
+    cir4 = Circuit("C:/Users/lzhu308/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/circuits/s349f_2.txt")
+    cir4.getOutputs("101010101010101011111111")
+    cir4.getOutputs("010111100000001110000000")
+    cir4.getOutputs("111110000011110001111111")
+    cir4.getOutputs("111000011100011000000000")
+    cir4.getOutputs("011110111100000001111111")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     
