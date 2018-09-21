@@ -101,7 +101,7 @@ class Circuit:
                     words = words[:-1]
                 gate = Gate(words[0])
                 for index in words[1 : -1]:
-                    wire = self.getWire(index)
+                    wire = self.getWire(index) 
                     gate.addDriven(wire)
                     wire.addDriving(gate)
                 index = words[-1]
@@ -131,7 +131,6 @@ class Circuit:
         output_list = []
         for output_wire in self.output_list:
             wire_stack.append(output_wire)
-            output_value = -1
             while (wire_stack):
                 wire = wire_stack.pop()
                 if wire.getValue() == -1:
@@ -142,11 +141,9 @@ class Circuit:
                         wire_stack = wire_stack + unknown_list
                     else:
                         wire.setValue(output_value)
-                else:
-                    output_value = wire.getValue()
 
-            output_list.append(output_value)
-            print(output_value, end = '')
+            output_list.append(output_wire.getValue())
+            print(output_wire.getValue(), end = '')
         
         print("")
         return(output_list)
