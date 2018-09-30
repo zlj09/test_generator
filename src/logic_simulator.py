@@ -128,7 +128,7 @@ class Circuit:
         inputs = [int(digit) for digit in inputs_str]
         self.initWire(inputs)
         wire_stack = []
-        output_list = []
+        output_str = ""
         for output_wire in self.output_list:
             wire_stack.append(output_wire)
             while (wire_stack):
@@ -142,75 +142,46 @@ class Circuit:
                     else:
                         wire.setValue(output_value)
 
-            output_list.append(output_wire.getValue())
-            print(output_wire.getValue(), end = '')
+            output_str += str(output_wire.getValue())
         
-        print("")
-        return(output_list)
-        
-        
-            
-                
-if __name__ == "__main__":
-    # cir0 = Circuit("C:/Users/lzhu308/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/circuits/and_or.txt")
-    # cir0.getOutputs("000")
-    # cir0.getOutputs("001")
-    # cir0.getOutputs("010")
-    # cir0.getOutputs("011")
-    # cir0.getOutputs("100")
-    # cir0.getOutputs("101")
-    # cir0.getOutputs("110")
-    # cir0.getOutputs("111")
+        return(output_str)
 
-    cir1 = Circuit("C:/Users/lzhu308/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/circuits/s27.txt")
-    cir1.getOutputs("1110101")
-    cir1.getOutputs("0001010")
-    cir1.getOutputs("1010101")
-    cir1.getOutputs("0110111")
-    cir1.getOutputs("1010001")
+def run(netlist_path, input_file_path, output_file_path):
+    if (netlist_path == ""):
+        netlist_path = input("Netlist Path: ")
+    else:
+        print("Netlist Path: %s" %netlist_path)
 
-    cir2 = Circuit("C:/Users/lzhu308/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/circuits/s298f_2.txt")
-    cir2.getOutputs("10101010101010101")
-    cir2.getOutputs("01011110000000111")
-    cir2.getOutputs("11111000001111000")
-    cir2.getOutputs("11100001110001100")
-    cir2.getOutputs("01111011110000000")
+    if (input_file_path == ""):
+        input_file_path = input("Input File Path: ")
+    else:
+        print("Input File Path: %s" %input_file_path)
 
-    cir3 = Circuit("C:/Users/lzhu308/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/circuits/s344f_2.txt")
-    cir3.getOutputs("101010101010101011111111")
-    cir3.getOutputs("010111100000001110000000")
-    cir3.getOutputs("111110000011110001111111")
-    cir3.getOutputs("111000011100011000000000")
-    cir3.getOutputs("011110111100000001111111")
+    if (output_file_path == ""):
+        output_file_path = input("Output File Path: ")
+    else:
+        print("Output File Path: %s" %output_file_path)
 
-    cir4 = Circuit("C:/Users/lzhu308/OneDrive - Georgia Institute of Technology\Academic\Digital Systems Testing/Projects/Logic simulator/logic_simulator/circuits/s349f_2.txt")
-    cir4.getOutputs("101010101010101011111111")
-    cir4.getOutputs("010111100000001110000000")
-    cir4.getOutputs("111110000011110001111111")
-    cir4.getOutputs("111000011100011000000000")
-    cir4.getOutputs("011110111100000001111111")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    cir = Circuit(netlist_path)
+    inputs = ""
+    outputs = ""
+    input_file = open(input_file_path, 'r')
+    output_file = open(output_file_path, 'w')
+    for input_str in input_file:
+        inputs += input_str
+        if (input_str[-1] == '\n'):
+            input_str = input_str[0:-1]
+        output_str = cir.getOutputs(input_str)
+        outputs += output_str + '\n'
+        output_file.write(output_str + '\n')
     
+    print("Inputs:\n%s" %inputs)
+    print("Outputs:\n%s" %outputs)
+
+        
+if __name__ == "__main__":
+    run("../circuits/s27.txt", "../inputs/s27_inputs.txt", "../outputs/s27_outputs.txt")
+    run("../circuits/s298f_2.txt", "../inputs/s298f_2_inputs.txt", "../outputs/s298f_2_outputs.txt")
+    run("../circuits/s344f_2.txt", "../inputs/s344f_2_inputs.txt", "../outputs/s344f_2_outputs.txt")
+    run("../circuits/s349f_2.txt", "../inputs/s349f_2_inputs.txt", "../outputs/s349f_2_outputs.txt")
+    run("", "", "")
