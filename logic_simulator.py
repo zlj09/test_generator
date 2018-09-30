@@ -147,20 +147,9 @@ class Circuit:
         return(output_str)
 
 def run(netlist_path, input_file_path, output_file_path):
-    if (netlist_path == ""):
-        netlist_path = input("Netlist Path: ")
-    else:
-        print("Netlist Path: %s" %netlist_path)
-
-    if (input_file_path == ""):
-        input_file_path = input("Input File Path: ")
-    else:
-        print("Input File Path: %s" %input_file_path)
-
-    if (output_file_path == ""):
-        output_file_path = input("Output File Path: ")
-    else:
-        print("Output File Path: %s" %output_file_path)
+    print("Netlist Path: %s" %netlist_path)
+    print("Input File Path: %s" %input_file_path)
+    print("Output File Path: %s" %output_file_path)
 
     cir = Circuit(netlist_path)
     inputs = ""
@@ -173,15 +162,15 @@ def run(netlist_path, input_file_path, output_file_path):
             input_str = input_str[0:-1]
         output_str = cir.getOutputs(input_str)
         outputs += output_str + '\n'
-        output_file.write(output_str + '\n')
     
+    outputs = outputs[0:-1]
+    output_file.write(outputs)
     print("Inputs:\n%s" %inputs)
     print("Outputs:\n%s" %outputs)
 
         
 if __name__ == "__main__":
-    run("../circuits/s27.txt", "../inputs/s27_inputs.txt", "../outputs/s27_outputs.txt")
-    run("../circuits/s298f_2.txt", "../inputs/s298f_2_inputs.txt", "../outputs/s298f_2_outputs.txt")
-    run("../circuits/s344f_2.txt", "../inputs/s344f_2_inputs.txt", "../outputs/s344f_2_outputs.txt")
-    run("../circuits/s349f_2.txt", "../inputs/s349f_2_inputs.txt", "../outputs/s349f_2_outputs.txt")
-    run("", "", "")
+    run("circuits/s27.txt", "inputs/s27_inputs.txt", "outputs/s27_outputs.txt")
+    run("circuits/s298f_2.txt", "inputs/s298f_2_inputs.txt", "outputs/s298f_2_outputs.txt")
+    run("circuits/s344f_2.txt", "inputs/s344f_2_inputs.txt", "outputs/s344f_2_outputs.txt")
+    run("circuits/s349f_2.txt", "inputs/s349f_2_inputs.txt", "outputs/s349f_2_outputs.txt")

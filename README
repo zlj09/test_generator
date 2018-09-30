@@ -1,0 +1,19 @@
+Setup
+    This program require Python 3.0 or higher version (tested under Python 3.7.0 32 bit). Please install Python 3 before run this program.
+
+
+Run
+    The main program is logic_simulator.py. Simply run "python logic_simulator.py" in command-line interface and then you will see the simulation results for the four given circuits: s27, s298f_2, s344f_2, s249f_2.
+
+    Additional Tests
+    If you need to do some additional tests, please follow the instructions below:
+    1. Prepare a netlist file defining the circuit, whose location is netlist_path
+    2. Prepare a input file listing the input vectors line by line, whose location is input_file_path
+    3. Define a the output file location output_file_path
+    4. Enter Python shell, then import logic_simulator
+    5. Run logic_simulator.run(netlist_path input_file_path, output_file_path)
+    6. The program will print the results both in the screen and the output file
+
+
+Output
+    The output file lists the output vectors corresponding to the input vectors line by line. The order of bits in a output vector is determined by the order of output wires listing in the netlist file. 
