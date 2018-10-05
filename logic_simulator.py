@@ -1,3 +1,5 @@
+import sys
+
 truth_table_dict = {
     "BUF" : {(0,) : 0, (1,) : 1},
     "INV" : {(0,) : 1, (1,) : 0},
@@ -170,7 +172,17 @@ def run(netlist_path, input_file_path, output_file_path):
 
         
 if __name__ == "__main__":
-    run("circuits/s27.txt", "inputs/s27_inputs.txt", "outputs/s27_outputs.txt")
-    run("circuits/s298f_2.txt", "inputs/s298f_2_inputs.txt", "outputs/s298f_2_outputs.txt")
-    run("circuits/s344f_2.txt", "inputs/s344f_2_inputs.txt", "outputs/s344f_2_outputs.txt")
-    run("circuits/s349f_2.txt", "inputs/s349f_2_inputs.txt", "outputs/s349f_2_outputs.txt")
+    if (len(sys.argv) == 1):
+        run("circuits/s27.txt", "inputs/s27_inputs.txt", "outputs/s27_outputs.txt")
+        run("circuits/s298f_2.txt", "inputs/s298f_2_inputs.txt", "outputs/s298f_2_outputs.txt")
+        run("circuits/s344f_2.txt", "inputs/s344f_2_inputs.txt", "outputs/s344f_2_outputs.txt")
+        run("circuits/s349f_2.txt", "inputs/s349f_2_inputs.txt", "outputs/s349f_2_outputs.txt")
+    elif (len(sys.argv) == 4):
+        run(sys.argv[1], sys.argv[2], sys.argv[3])
+    else:
+        print("Usage: logic_simulator.py [netlist_path input_file_path output_file_path]\n")
+        print("No parameter: simulate the 4 given circuits: s27, s298f_2, s344f_2, s249f_2 using giving input vectors\n")
+        print("Optional parameters:")
+        print("netlist_path:\t\tpath of netlist file")
+        print("input_file_path:\tpath of input file")
+        print("output_file_path:\tpath of output file")
