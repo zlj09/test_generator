@@ -1,5 +1,7 @@
 import sys
 import random
+import numpy as np
+import matplotlib
 
 truth_table_dict = {
     "BUF" : {(0,) : 0, (1,) : 1},
@@ -278,9 +280,9 @@ class Circuit:
         return(detected_fault_list)
 
     def randomDetect(self, target_coverage, fault_str_list = []):
-        test_vec_num = 0
         coverage = 0
         detected_fault_list = set()
+        test_set = set()
         self.initFaultUniverse(fault_str_list)
         print("Fault Universe: ")
         for fault in self.fault_universe.values():
@@ -288,13 +290,16 @@ class Circuit:
         while (coverage < target_coverage):
             rand_test_vec = [random.randint(0, 1) for i in range(len(self.input_list))]
             rand_test_str = ''.join([ str(bit) for bit in rand_test_vec])
+            if (rand_test_str in test_set):
+                continue
+            else:
+                test_set.add(rand_test_str)
             print("\nRand Test Vec: %s" % (rand_test_str))
             # detected_fault_list |= self.getDetectedFaults(rand_test_str, fault_str_list)
             new_detected_fault = self.getDetectedFaults(rand_test_str)
             detected_fault_list |= new_detected_fault
-            test_vec_num += 1
             coverage = float(len(detected_fault_list)) / float(len(self.fault_universe))
-            print("Test Vec Num: %d, Coverage: %f" % (test_vec_num, coverage))
+            print("Test Vec Num: %d, Coverage: %f" % (len(test_set), coverage))
             print("Detected faults: ")
             for fault in detected_fault_list:
                 print("%s" % (fault), end = ", ")
@@ -340,8 +345,8 @@ if __name__ == "__main__":
     #     print("input_file_path:\tpath of input file")
     #     print("output_file_path:\tpath of output file")
 
-    # cir = Circuit("circuits/and_or.txt")
-    # cir.randomDetect(1.0)
+    cir = Circuit("circuits/and_or.txt")
+    cir.randomDetect(0.9)
     # cir.initFaultUniverse()
     # cir.getDetectedFaults("111")
     # cir.getDetectedFaults("110")
@@ -362,9 +367,9 @@ if __name__ == "__main__":
     # cir.getDetectedFaults("10101010101010101")
     # cir.getDetectedFaults("11101110101110111")
  
-    cir = Circuit("circuits/s344f_2.txt")
-    cir.initFaultUniverse()
-    cir.getDetectedFaults("101000110101110011001010")
+    # cir = Circuit("circuits/s344f_2.txt")
+    # cir.initFaultUniverse()
+    # cir.getDetectedFaults("101000110101110011001010")
     # cir.getDetectedFaults("101010101010101011111111")
     # cir.getDetectedFaults("111010111010101010001100")
 
