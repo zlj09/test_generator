@@ -90,7 +90,7 @@ class Gate(Node):
                 if (ctrl_val_num):
                     ctrl_fault_list &= input_wire.getFaultList()
                 else:
-                    ctrl_fault_list = input_wire.getFaultList()
+                    ctrl_fault_list |= input_wire.getFaultList()
                 ctrl_val_num += 1
             else:
                 unctrl_fault_list |= input_wire.getFaultList()
@@ -255,6 +255,8 @@ class Circuit:
             wire_stack.append(output_wire)
             while (wire_stack):
                 wire = wire_stack.pop()
+                if (wire.index == "43"):
+                    print("pause")
                 if wire.getValue() == -1:
                     gate = wire.driven[0]
                     output_value, unknown_list = gate.getValue()
