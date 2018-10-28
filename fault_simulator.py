@@ -1,4 +1,5 @@
 import sys
+import random
 
 truth_table_dict = {
     "BUF" : {(0,) : 0, (1,) : 1},
@@ -200,22 +201,27 @@ class Circuit:
         for i in range(len(inputs)):
             self.input_list[i].setValue(inputs[i])
 
-    def initFaultList(self, fault_str_list):
+    def initFaultList(self, fault_universe):
+        for (wire_index, stuck_val), fault in fault_universe.items():
+            wire = self.getWire(wire_index)
+            if (stuck_val != wire.getValue()):
+                wire.addFault(fault)
+
+    def getFaultUniverse(self, fault_str_list):
+        fault_universe = {}
         if (fault_str_list):
             for fault_str in fault_str_list:
                 fault_str_split = fault_str.split(" ")
                 wire_index = fault_str_split[0]
                 stuck_val = fault_str_split[1]
                 fault = Fault(wire_index, stuck_val)
-                wire = self.getWire(wire_index)
-                if (stuck_val != wire.getValue()):
-                    wire.addFault(fault)
+                fault_universe[(wire_index, stuck_val)] = fault
         else:
             for wire_index, wire in self.wire_dict.items():
                 for stuck_val in [0, 1]:
                     fault = Fault(wire_index, stuck_val)
-                    if (stuck_val != wire.getValue()):
-                        wire.addFault(fault)
+                    fault_universe[(wire_index, stuck_val)] = fault
+        return(fault_universe)
 
     def getOutputs(self, inputs_str):
         inputs = [int(digit) for digit in inputs_str]
@@ -239,10 +245,10 @@ class Circuit:
         
         return(output_str)
 
-    def getDetectedFaults(self, inputs_str, fault_str_list = []):
+    def getDetectedFaults(self, inputs_str, fault_universe):
         inputs = [int(digit) for digit in inputs_str]
         self.initWireValue(inputs)
-        self.initFaultList(fault_str_list)
+        self.initFaultList(fault_universe)
         wire_stack = []
         detected_fault_list = set()
         for output_wire in self.output_list:
@@ -266,6 +272,30 @@ class Circuit:
             print(fault)
         
         return(detected_fault_list)
+
+    def randomDetect(self, target_coverage, fault_str_list = []):
+        test_vec_num = 0
+        coverage = 0
+        detected_fault_list = set()
+        fault_universe = self.getFaultUniverse(fault_str_list)
+        print("Fault Universe: ")
+        for fault in fault_universe.values():
+            print("%s" % (fault), end = ", ")
+        while (coverage < target_coverage):
+            rand_test_vec = [random.randint(0, 1) for i in range(len(self.input_list))]
+            rand_test_str = ''.join([ str(bit) for bit in rand_test_vec])
+            print("\nRand Test Vec: %s" % (rand_test_str))
+            # detected_fault_list |= self.getDetectedFaults(rand_test_str, fault_str_list)
+            new_detected_fault = self.getDetectedFaults(rand_test_str, fault_universe)
+            detected_fault_list |= new_detected_fault
+            test_vec_num += 1
+            coverage = float(len(detected_fault_list)) / float(len(fault_universe))
+            print("Test Vec Num: %d, Coverage: %f" % (test_vec_num, coverage))
+            print("Detected faults: ")
+            for fault in detected_fault_list:
+                print("%s" % (fault), end = ", ")
+
+
 
 def run(netlist_path, input_file_path, output_file_path):
     print("Netlist Path: %s" %netlist_path)
@@ -306,7 +336,8 @@ if __name__ == "__main__":
     #     print("input_file_path:\tpath of input file")
     #     print("output_file_path:\tpath of output file")
 
-    # cir = Circuit("circuits/and_or.txt")
+    cir = Circuit("circuits/and_or.txt")
+    cir.randomDetect(0.8)
     # cir.getDetectedFaults("111")
     # cir.getDetectedFaults("110")
     # cir.getDetectedFaults("101") 
@@ -320,14 +351,15 @@ if __name__ == "__main__":
     # cir.getDetectedFaults("1110101")
     # cir.getDetectedFaults("0101001")
 
-    #cir = Circuit("circuits/s298f_2.txt")
+    # cir = Circuit("circuits/s298f_2.txt")
     # cir.getDetectedFaults("10101010101010101")
     # cir.getDetectedFaults("11101110101110111")
  
-     cir = Circuit("circuits/s344f_2.txt")
-     cir.getDetectedFaults("101010101010101011111111")
-     cir.getDetectedFaults("111010111010101010001100")
+    # cir = Circuit("circuits/s344f_2.txt")
+    # cir.getDetectedFaults("101010101010101011111111")
+    # cir.getDetectedFaults("111010111010101010001100")
+
+    # cir = Circuit("circuits/s349f_2.txt")
+    # cir.getDetectedFaults("101010101010101011111111")
+    # cir.getDetectedFaults("101010101010101011111111")
     
-     cir = Circuit("circuits/s349f_2.txt")
-     cir.getDetectedFaults("101010101010101011111111")
-     cir.getDetectedFaults("101010101010101011111111")
