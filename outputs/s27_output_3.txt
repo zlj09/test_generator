@@ -1,0 +1,12 @@
+Num of detected faults: 11
+1 stuck at 0
+3 stuck at 0
+5 stuck at 0
+7 stuck at 0
+9 stuck at 1
+11 stuck at 1
+12 stuck at 0
+13 stuck at 0
+14 stuck at 0
+18 stuck at 1
+20 stuck at 1
