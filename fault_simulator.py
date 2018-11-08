@@ -1,7 +1,12 @@
 import sys
 import random
-import numpy as np
-import matplotlib.pyplot as plt
+
+NO_PLOT = False
+try:
+    import numpy as np
+    import matplotlib.pyplot as plt
+except ImportError:
+    NO_PLOT = True
 
 truth_table_dict = {
     "BUF" : {(0,) : 0, (1,) : 1},
@@ -307,14 +312,15 @@ class Circuit:
 
         print("%d random vectors needed to achieve %f coverage" % (len(test_set), coverage))
         
-        x = np.array(range(1, len(test_set) + 1))
-        y = np.array(cov_per_list)
-        plt.plot(x, y)
-        plt.scatter(x, y, s = 10, color = "blue")
-        plt.xlabel(r"Test Vector Number", fontsize = 10)
-        plt.ylabel(r"Coverage (%)", fontsize = 10)
-        plt.xticks(np.array(range(0, len(test_set) + 2)))
-        plt.show()
+        if (not NO_PLOT):
+            x = np.array(range(1, len(test_set) + 1))
+            y = np.array(cov_per_list)
+            plt.plot(x, y)
+            plt.scatter(x, y, s = 10, color = "blue")
+            plt.xlabel(r"Test Vector Number", fontsize = 10)
+            plt.ylabel(r"Coverage (%)", fontsize = 10)
+            plt.xticks(np.array(range(0, len(test_set) + 2)))
+            plt.show()
 
 
 
