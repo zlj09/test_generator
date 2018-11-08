@@ -1,7 +1,7 @@
 Setup
     This program requires Python 3.0 or higher version (tested under Python 3.7.0 32 bit). Please install Python 3 before running this program.
     This program also depends on several Python packages: sys, random, numpy and matplotlib. Among the packages, sys and random are required, while they belongs to THe Python Standard Library so they should be included in most of Python distributions. 
-    Besides, numpy and matplotlib are optional. They are used to draw the plot. The program can still run without the two packages. Also, if you like, you can use Anaconda3 Python 3.7 version (https://www.anaconda.com/download/) to setup the environment.
+    Besides, numpy and matplotlib are optional. They are used to draw the test vector number vs. coverage curve. The program can still run without the two packages. Also, if you like, you can use Anaconda3 Python 3.7 version (https://www.anaconda.com/download/) to setup the environment.
 
 Run
     The main program is fault_simulator.py. The usage of the program is shown as below. You can also check the usage by typing python fault_simulator.py --help.
