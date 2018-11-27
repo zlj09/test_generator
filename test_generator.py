@@ -170,7 +170,7 @@ class Circuit:
         self.gate_dict = {}
         self.input_list = []
         self.output_list = []
-        self.fault_universe = {}
+        self.fault_universe = []
         self.d_frontier = []
 
         fp = open(cir_path, "r")
@@ -219,13 +219,13 @@ class Circuit:
             self.input_list[i].setValue(inputs[i])
 
     def initFaultList(self):
-        for (wire_index, stuck_val), fault in self.fault_universe.items():
-            wire = self.getWire(wire_index)
-            if (stuck_val != wire.getValue()):
+        for fault in self.fault_universe:
+            wire = self.getWire(fault.wire_index)
+            if (fault.stuck_val != wire.getValue()):
                 wire.addFault(fault)
 
     def initFaultUniverse(self, fault_str_list = []):
-        self.fault_universe = {}
+        self.fault_universe = []
         for wire in self.wire_dict.values():
             wire.fault_list = set()
         if (fault_str_list):
@@ -234,12 +234,12 @@ class Circuit:
                 wire_index = fault_str_split[0]
                 stuck_val = int(fault_str_split[1])
                 fault = Fault(wire_index, stuck_val)
-                self.fault_universe[(wire_index, stuck_val)] = fault
+                self.fault_universe.append(fault)
         else:
             for wire_index, wire in self.wire_dict.items():
                 for stuck_val in [0, 1]:
                     fault = Fault(wire_index, stuck_val)
-                    self.fault_universe[(wire_index, stuck_val)] = fault
+                    self.fault_universe.append(fault)
 
     def getOutputs(self, inputs_str):
         inputs = [int(digit) for digit in inputs_str]
@@ -438,7 +438,7 @@ def gen():
     cir = Circuit("circuits/and_or.txt")
     cir.initFaultUniverse(["2 0", "3 1", "4 0"])
     test_set = set()
-    for target_fault in cir.fault_universe.values():
+    for target_fault in cir.fault_universe:
         cir.initWireValue([])
         if (target_fault.stuck_val == 0):
             cir.getWire(target_fault.wire_index).setValue(D)
@@ -451,17 +451,17 @@ def gen():
 
         
 if __name__ == "__main__":
-    gen()
+    #gen()
 
-    # if (len(sys.argv) == 1):
-    #     run("circuits/s27.txt", "inputs/s27_input_1.txt", "outputs/s27_output_1.txt")
-    #     run("circuits/s27.txt", "inputs/s27_input_2.txt", "outputs/s27_output_2.txt")
-    #     run("circuits/s298f_2.txt", "inputs/s298f_2_input_1.txt", "outputs/s298f_2_output_1.txt")
-    #     run("circuits/s298f_2.txt", "inputs/s298f_2_input_2.txt", "outputs/s298f_2_output_2.txt")
-    #     run("circuits/s344f_2.txt", "inputs/s344f_2_input_1.txt", "outputs/s344f_2_output_1.txt")
-    #     run("circuits/s344f_2.txt", "inputs/s344f_2_input_2.txt", "outputs/s344f_2_output_2.txt")
-    #     run("circuits/s349f_2.txt", "inputs/s349f_2_input_1.txt", "outputs/s349f_2_output_1.txt")
-    #     run("circuits/s349f_2.txt", "inputs/s349f_2_input_2.txt", "outputs/s349f_2_output_2.txt")
+    if (len(sys.argv) == 1):
+        run("circuits/s27.txt", "inputs/s27_input_1.txt", "outputs/s27_output_1.txt")
+        run("circuits/s27.txt", "inputs/s27_input_2.txt", "outputs/s27_output_2.txt")
+        run("circuits/s298f_2.txt", "inputs/s298f_2_input_1.txt", "outputs/s298f_2_output_1.txt")
+        run("circuits/s298f_2.txt", "inputs/s298f_2_input_2.txt", "outputs/s298f_2_output_2.txt")
+        run("circuits/s344f_2.txt", "inputs/s344f_2_input_1.txt", "outputs/s344f_2_output_1.txt")
+        run("circuits/s344f_2.txt", "inputs/s344f_2_input_2.txt", "outputs/s344f_2_output_2.txt")
+        run("circuits/s349f_2.txt", "inputs/s349f_2_input_1.txt", "outputs/s349f_2_output_1.txt")
+        run("circuits/s349f_2.txt", "inputs/s349f_2_input_2.txt", "outputs/s349f_2_output_2.txt")
     # elif (len(sys.argv) >= 5 and sys.argv[1] == "-run"):
     #     run(*sys.argv[2:])
     # elif (len(sys.argv) >= 4 and sys.argv[1] == "-rand_run"):
