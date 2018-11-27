@@ -9,6 +9,13 @@ try:
 except ImportError:
     NO_PLOT = True
 
+###### Definition ######
+X = -1
+# 0 = 0
+# 1 = 1
+D = 2
+D_bar = 3
+
 truth_table_dict = {
     "BUF" : {(0,) : 0, (1,) : 1},
     "INV" : {(0,) : 1, (1,) : 0},
@@ -76,12 +83,12 @@ class Gate(Node):
         value_list = []
         unknown_list = []
         for wire in self.driven:
-            if wire.getValue() == -1:
+            if wire.getValue() == X:
                 unknown_list.append(wire)
             else:
                 value_list.append(wire.getValue())
         if unknown_list:
-            return(-1, unknown_list)
+            return(X, unknown_list)
         else:
             value_tuple = tuple(value_list)
             output_value = self.truth_table[value_tuple]
@@ -92,7 +99,7 @@ class Gate(Node):
         unctrl_fault_list = set()
         ctrl_val_num = 0
         for input_wire in self.driven:
-            if (input_wire.getValue() == -1):
+            if (input_wire.getValue() == X):
                 print("Error: Wire %s has unknown value\n" %(input_wire.index))
             elif (input_wire.getValue() == self.ctrl_val):
                 if (ctrl_val_num):
@@ -122,7 +129,7 @@ class Wire(Node):
     def __init__(self, index):
         super().__init__()
         self.index = index
-        self.value = -1
+        self.value = X
         self.fault_list = set()
     
     def __str__(self):
@@ -207,7 +214,7 @@ class Circuit:
 
     def initWireValue(self, inputs):
         for wire in self.wire_dict.values():
-            wire.setValue(-1)
+            wire.setValue(X)
         for i in range(len(inputs)):
             self.input_list[i].setValue(inputs[i])
 
@@ -243,10 +250,10 @@ class Circuit:
             wire_stack.append(output_wire)
             while (wire_stack):
                 wire = wire_stack.pop()
-                if wire.getValue() == -1:
+                if wire.getValue() == X:
                     gate = wire.driven[0]
                     output_value, unknown_list = gate.getValue()
-                    if output_value == -1:
+                    if output_value == X:
                         wire_stack.append(wire)
                         wire_stack = wire_stack + unknown_list
                     else:
@@ -266,10 +273,10 @@ class Circuit:
             wire_stack.append(output_wire)
             while (wire_stack):
                 wire = wire_stack.pop()
-                if wire.getValue() == -1:
+                if wire.getValue() == X:
                     gate = wire.driven[0]
                     output_value, unknown_list = gate.getValue()
-                    if output_value == -1:
+                    if output_value == X:
                         wire_stack.append(wire)
                         wire_stack = wire_stack + unknown_list
                     else:
@@ -331,7 +338,7 @@ class Circuit:
             gate_k = wire_k.driven[0]
             inversion = gate_k.inversion
             for wire_j in gate_k.driven:
-                if (wire_j.getValue() == -1):
+                if (wire_j.getValue() == X):
                     break
             val = val ^ inversion
             wire_index_k = wire_j.index
@@ -340,17 +347,19 @@ class Circuit:
     
     def objective(self, target_fault):
         wire_l = self.getWire(target_fault.wire_index)
-        if (wire_l.getVaule == -1):
+        if (wire_l.getVaule == X):
             return(wire_l.index, int(not target_fault.stuck_val))
         for gate_g in self.d_frontier:
             for wire_j in gate_g.driven:
-                if (wire_j.getValue() == -1):
+                if (wire_j.getValue() == X):
                     break
         ctrl_val = gate_g.ctrl_val
         return(wire_j.index, ctrl_val)
 
-    def PODEM():
-        for
+    def PODEM(self):
+        for po in self.output_list:
+            if (po.getValue == 2):
+                return(True)
 
 
     
@@ -430,7 +439,14 @@ def gen():
     cir.initFaultUniverse(["2 0", "3 1", "4 0"])
     test_set = set()
     for target_fault in cir.fault_universe.values():
-        if (c)
+        cir.initWireValue([])
+        if (target_fault.stuck_val == 0):
+            cir.getWire(target_fault.wire_index).setValue(D)
+        else:
+            cir.getWire(target_fault.wire_index).setValue(D_bar)
+        if (cir.PODEM()):
+            new_test_vec_str = [str(pi.getValue()) for pi in cir.input_list]
+            
 
 
         
