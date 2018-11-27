@@ -1,5 +1,6 @@
 import sys
 import random
+from enum import Enum
 
 NO_PLOT = False
 try:
@@ -163,6 +164,7 @@ class Circuit:
         self.input_list = []
         self.output_list = []
         self.fault_universe = {}
+        self.d_frontier = []
 
         fp = open(cir_path, "r")
         cir_lines = fp.readlines()
@@ -322,6 +324,37 @@ class Circuit:
             plt.xticks(np.array(range(0, len(test_set) + 2)))
             plt.show()
 
+    def backtrace(self, wire_index_k, trace_val_k):
+        val = trace_val_k
+        while (not (wire_index_k in self.input_list)):
+            wire_k = self.getWire(wire_index_k)
+            gate_k = wire_k.driven[0]
+            inversion = gate_k.inversion
+            for wire_j in gate_k.driven:
+                if (wire_j.getValue() == -1):
+                    break
+            val = val ^ inversion
+            wire_index_k = wire_j.index
+        
+        return(wire_index_k, val)
+    
+    def objective(self, target_fault):
+        wire_l = self.getWire(target_fault.wire_index)
+        if (wire_l.getVaule == -1):
+            return(wire_l.index, int(not target_fault.stuck_val))
+        for gate_g in self.d_frontier:
+            for wire_j in gate_g.driven:
+                if (wire_j.getValue() == -1):
+                    break
+        ctrl_val = gate_g.ctrl_val
+        return(wire_j.index, ctrl_val)
+
+    def PODEM():
+        for
+
+
+    
+    
 
 
 def run(netlist_path, input_file_path, output_file_path, fault_file_path = None):
@@ -335,10 +368,10 @@ def run(netlist_path, input_file_path, output_file_path, fault_file_path = None)
         fault_file = open(fault_file_path, "r")
         print("Read the list of fault to be simulated...")
         for line in fault_file:
-            line.replace("x", "0")
-            line.replace("u", "0")
-            line.replace("X", "0")
-            line.replace("U", "0")
+            line = line.replace("x", "0")
+            line = line.replace("u", "0")
+            line = line.replace("X", "0")
+            line = line.replace("U", "0")
             fault_str_list.append(line)
         print("Reading completed, %d faults read" % (len(fault_str_list)))
         fault_file.close()
@@ -353,11 +386,11 @@ def run(netlist_path, input_file_path, output_file_path, fault_file_path = None)
 
     cir.initFaultUniverse(fault_str_list)
     inputs_str = input_file.readline()
-    inputs_str.replace("\n", "")
-    inputs_str.replace("x", "0")
-    inputs_str.replace("u", "0")
-    inputs_str.replace("X", "0")
-    inputs_str.replace("U", "0")
+    inputs_str = inputs_str.replace("\n", "")
+    inputs_str = inputs_str.replace("x", "0")
+    inputs_str = inputs_str.replace("u", "0")
+    inputs_str = inputs_str.replace("X", "0")
+    inputs_str = inputs_str.replace("U", "0")
     detected_fault_list, detected_fault_str = cir.getDetectedFaults(inputs_str)
     output_file.write(detected_fault_str)
 
@@ -392,36 +425,46 @@ def rand_run(netlist_path, target_coverage_str, fault_file_path = None):
     target_coverage = float(target_coverage_str)
     cir.randomDetect(target_coverage, fault_str_list)
 
+def gen():
+    cir = Circuit("circuits/and_or.txt")
+    cir.initFaultUniverse(["2 0", "3 1", "4 0"])
+    test_set = set()
+    for target_fault in cir.fault_universe.values():
+        if (c)
+
+
         
 if __name__ == "__main__":
-    if (len(sys.argv) == 1):
-        run("circuits/s27.txt", "inputs/s27_input_1.txt", "outputs/s27_output_1.txt")
-        run("circuits/s27.txt", "inputs/s27_input_2.txt", "outputs/s27_output_2.txt")
-        run("circuits/s298f_2.txt", "inputs/s298f_2_input_1.txt", "outputs/s298f_2_output_1.txt")
-        run("circuits/s298f_2.txt", "inputs/s298f_2_input_2.txt", "outputs/s298f_2_output_2.txt")
-        run("circuits/s344f_2.txt", "inputs/s344f_2_input_1.txt", "outputs/s344f_2_output_1.txt")
-        run("circuits/s344f_2.txt", "inputs/s344f_2_input_2.txt", "outputs/s344f_2_output_2.txt")
-        run("circuits/s349f_2.txt", "inputs/s349f_2_input_1.txt", "outputs/s349f_2_output_1.txt")
-        run("circuits/s349f_2.txt", "inputs/s349f_2_input_2.txt", "outputs/s349f_2_output_2.txt")
-    elif (len(sys.argv) >= 5 and sys.argv[1] == "-run"):
-        run(*sys.argv[2:])
-    elif (len(sys.argv) >= 4 and sys.argv[1] == "-rand_run"):
-        rand_run(*sys.argv[2:])
-    else:
-        print("Usage 1: ")
-        print("python fault_simulator.py (No parameter)")
-        print("\tFunction: simulate the 4 given circuits: s27, s298f_2, s344f_2, s249f_2 using given test vectors, considering all stuck-at faults\n")
+    gen()
 
-        print("Usage 2: ")
-        print("python fault_simulator.py -run NETLIST_FILE_PATH INPUT_FILE_PATH OUTPUT_FILE_PATH [FAULT_FILE_PATH]")
-        print("\tFunction: simulate a circuit (defined in NETLIST_FILE) with a test vector provided in the INPUT_FILE, print the results to OUTPUT_FILE, considering the faults defined in FAULT_FILE (optional)")
-        print("\tExample 1: python fault_simulator.py -run circuits\s27.txt inputs\s27_input_3.txt outputs\s27_output_3.txt")
-        print("\tExample 2: python fault_simulator.py -run circuits\s27.txt inputs\s27_input_3.txt outputs\s27_output_3.txt faults\s27_fault_1.txt\n")
-
-        print("Usage 3: ")
-        print("python fault_simulator.py -rand_run NETLIST_FILE_PATH TARGET_COVERAGE [FAULT_FILE_PATH]")
-        print("\tFunction: apply random test vectors to a circuit (defined in NETLIST_FILE), count the number of vectors needed to achieve the TARGET_COVERAGE, considering the faults defined in FAULT_FILE (optional)")
-        print("\tExample 1: python fault_simulator.py -rand_run circuits\s27.txt 0.9")
-        print("\tExample 2: python fault_simulator.py -rand_run circuits\s27.txt 0.9 faults\s27_fault_1.txt\n")
+    # if (len(sys.argv) == 1):
+    #     run("circuits/s27.txt", "inputs/s27_input_1.txt", "outputs/s27_output_1.txt")
+    #     run("circuits/s27.txt", "inputs/s27_input_2.txt", "outputs/s27_output_2.txt")
+    #     run("circuits/s298f_2.txt", "inputs/s298f_2_input_1.txt", "outputs/s298f_2_output_1.txt")
+    #     run("circuits/s298f_2.txt", "inputs/s298f_2_input_2.txt", "outputs/s298f_2_output_2.txt")
+    #     run("circuits/s344f_2.txt", "inputs/s344f_2_input_1.txt", "outputs/s344f_2_output_1.txt")
+    #     run("circuits/s344f_2.txt", "inputs/s344f_2_input_2.txt", "outputs/s344f_2_output_2.txt")
+    #     run("circuits/s349f_2.txt", "inputs/s349f_2_input_1.txt", "outputs/s349f_2_output_1.txt")
+    #     run("circuits/s349f_2.txt", "inputs/s349f_2_input_2.txt", "outputs/s349f_2_output_2.txt")
+    # elif (len(sys.argv) >= 5 and sys.argv[1] == "-run"):
+    #     run(*sys.argv[2:])
+    # elif (len(sys.argv) >= 4 and sys.argv[1] == "-rand_run"):
+    #     rand_run(*sys.argv[2:])
+    # else:
+    #     print("Usage 1: ")
+    #     print("python fault_simulator.py (No parameter)")
+    #     print("\tFunction: simulate the 4 given circuits: s27, s298f_2, s344f_2, s249f_2 using given test vectors, considering all stuck-at faults\n")
+# 
+    #     print("Usage 2: ")
+    #     print("python fault_simulator.py -run NETLIST_FILE_PATH INPUT_FILE_PATH OUTPUT_FILE_PATH [FAULT_FILE_PATH]")
+    #     print("\tFunction: simulate a circuit (defined in NETLIST_FILE) with a test vector provided in the INPUT_FILE, print the results to OUTPUT_FILE, considering the faults defined in FAULT_FILE (optional)")
+    #     print("\tExample 1: python fault_simulator.py -run circuits\s27.txt inputs\s27_input_3.txt outputs\s27_output_3.txt")
+    #     print("\tExample 2: python fault_simulator.py -run circuits\s27.txt inputs\s27_input_3.txt outputs\s27_output_3.txt faults\s27_fault_1.txt\n")
+# 
+    #     print("Usage 3: ")
+    #     print("python fault_simulator.py -rand_run NETLIST_FILE_PATH TARGET_COVERAGE [FAULT_FILE_PATH]")
+    #     print("\tFunction: apply random test vectors to a circuit (defined in NETLIST_FILE), count the number of vectors needed to achieve the TARGET_COVERAGE, considering the faults defined in FAULT_FILE (optional)")
+    #     print("\tExample 1: python fault_simulator.py -rand_run circuits\s27.txt 0.9")
+    #     print("\tExample 2: python fault_simulator.py -rand_run circuits\s27.txt 0.9 faults\s27_fault_1.txt\n")
         
     

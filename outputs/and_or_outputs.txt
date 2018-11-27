@@ -1,2 +1,2 @@
 Num of detected faults: 1
-12 stuck at 0
+3 stuck at 1
