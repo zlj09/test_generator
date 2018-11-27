@@ -361,9 +361,23 @@ class Circuit:
             if (po.getValue == 2):
                 return(True)
 
-
-    
-    
+    def genTestSet(self):
+        test_set = set()
+        fault_set = set(self.fault_universe)
+        while (fault_set):
+            target_fault = fault_set.pop()
+            self.initWireValue([])
+            if (target_fault.stuck_val == 0):
+                self.getWire(target_fault.wire_index).setValue(D)
+            else:
+                self.getWire(target_fault.wire_index).setValue(D_bar)
+            if (self.PODEM()):
+                new_test_str = [str(pi.getValue()) for pi in self.input_list]
+                test_set.add(new_test_str)
+                new_detected_fault_set, detected_fault_str = self.getDetectedFaults(new_test_str)
+                fault_set -= new_detected_fault_set
+            else:
+                print("Fault %s is undetectable!" %(target_fault))
 
 
 def run(netlist_path, input_file_path, output_file_path, fault_file_path = None):
@@ -434,31 +448,15 @@ def rand_run(netlist_path, target_coverage_str, fault_file_path = None):
     target_coverage = float(target_coverage_str)
     cir.randomDetect(target_coverage, fault_str_list)
 
-def gen():
-    cir = Circuit("circuits/and_or.txt")
-    cir.initFaultUniverse(["2 0", "3 1", "4 0"])
-    test_set = set()
-    fault_set = set(cir.fault_universe)
-    while (fault_set):
-        target_fault = fault_set.pop()
-        cir.initWireValue([])
-        if (target_fault.stuck_val == 0):
-            cir.getWire(target_fault.wire_index).setValue(D)
-        else:
-            cir.getWire(target_fault.wire_index).setValue(D_bar)
-        if (cir.PODEM()):
-            new_test_str = [str(pi.getValue()) for pi in cir.input_list]
-            test_set.add(new_test_str)
-            new_detected_fault_set, detected_fault_str = cir.getDetectedFaults(new_test_str)
-            fault_set -= new_detected_fault_set
-        else:
-            print("Fault %s is undetectable!" %(target_fault))
+
             
 
 
         
 if __name__ == "__main__":
-    gen()
+    cir = Circuit("circuits/and_or.txt")
+    cir.initFaultUniverse(["2 0"])
+    cir.genTestSet()
 
     # if (len(sys.argv) == 1):
     #     run("circuits/s27.txt", "inputs/s27_input_1.txt", "outputs/s27_output_1.txt")
