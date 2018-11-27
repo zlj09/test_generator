@@ -438,30 +438,37 @@ def gen():
     cir = Circuit("circuits/and_or.txt")
     cir.initFaultUniverse(["2 0", "3 1", "4 0"])
     test_set = set()
-    for target_fault in cir.fault_universe:
+    fault_set = set(cir.fault_universe)
+    while (fault_set):
+        target_fault = fault_set.pop()
         cir.initWireValue([])
         if (target_fault.stuck_val == 0):
             cir.getWire(target_fault.wire_index).setValue(D)
         else:
             cir.getWire(target_fault.wire_index).setValue(D_bar)
         if (cir.PODEM()):
-            new_test_vec_str = [str(pi.getValue()) for pi in cir.input_list]
+            new_test_str = [str(pi.getValue()) for pi in cir.input_list]
+            test_set.add(new_test_str)
+            new_detected_fault_set, detected_fault_str = cir.getDetectedFaults(new_test_str)
+            fault_set -= new_detected_fault_set
+        else:
+            print("Fault %s is undetectable!" %(target_fault))
             
 
 
         
 if __name__ == "__main__":
-    #gen()
+    gen()
 
-    if (len(sys.argv) == 1):
-        run("circuits/s27.txt", "inputs/s27_input_1.txt", "outputs/s27_output_1.txt")
-        run("circuits/s27.txt", "inputs/s27_input_2.txt", "outputs/s27_output_2.txt")
-        run("circuits/s298f_2.txt", "inputs/s298f_2_input_1.txt", "outputs/s298f_2_output_1.txt")
-        run("circuits/s298f_2.txt", "inputs/s298f_2_input_2.txt", "outputs/s298f_2_output_2.txt")
-        run("circuits/s344f_2.txt", "inputs/s344f_2_input_1.txt", "outputs/s344f_2_output_1.txt")
-        run("circuits/s344f_2.txt", "inputs/s344f_2_input_2.txt", "outputs/s344f_2_output_2.txt")
-        run("circuits/s349f_2.txt", "inputs/s349f_2_input_1.txt", "outputs/s349f_2_output_1.txt")
-        run("circuits/s349f_2.txt", "inputs/s349f_2_input_2.txt", "outputs/s349f_2_output_2.txt")
+    # if (len(sys.argv) == 1):
+    #     run("circuits/s27.txt", "inputs/s27_input_1.txt", "outputs/s27_output_1.txt")
+    #     run("circuits/s27.txt", "inputs/s27_input_2.txt", "outputs/s27_output_2.txt")
+    #     run("circuits/s298f_2.txt", "inputs/s298f_2_input_1.txt", "outputs/s298f_2_output_1.txt")
+    #     run("circuits/s298f_2.txt", "inputs/s298f_2_input_2.txt", "outputs/s298f_2_output_2.txt")
+    #     run("circuits/s344f_2.txt", "inputs/s344f_2_input_1.txt", "outputs/s344f_2_output_1.txt")
+    #     run("circuits/s344f_2.txt", "inputs/s344f_2_input_2.txt", "outputs/s344f_2_output_2.txt")
+    #     run("circuits/s349f_2.txt", "inputs/s349f_2_input_1.txt", "outputs/s349f_2_output_1.txt")
+    #     run("circuits/s349f_2.txt", "inputs/s349f_2_input_2.txt", "outputs/s349f_2_output_2.txt")
     # elif (len(sys.argv) >= 5 and sys.argv[1] == "-run"):
     #     run(*sys.argv[2:])
     # elif (len(sys.argv) >= 4 and sys.argv[1] == "-rand_run"):
