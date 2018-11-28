@@ -112,14 +112,11 @@ class Gate(Node):
         for wire in self.driven:
             if wire.getValue() == X:
                 unknown_list.append(wire)
-            else:
-                value_list.append(wire.getValue())
-        if unknown_list:
-            return(X, unknown_list)
-        else:
-            value_tuple = tuple(value_list)
-            output_value = self.truth_table[value_tuple]
-            return(output_value, unknown_list)
+            value_list.append(wire.getValue())
+        
+        value_tuple = tuple(value_list)
+        output_value = self.truth_table[value_tuple]
+        return(output_value, unknown_list)
 
     def getOutputFaultList(self):
         ctrl_fault_list = set()
@@ -556,8 +553,12 @@ if __name__ == "__main__":
     # cir.genTestSet()
 
     cir = Circuit("circuits/s27.txt")
-    cir.initFaultUniverse(["16 0", "10 1"])
+    cir.initFaultUniverse(["12 0"])
     cir.genTestSet()
+    
+    # cir = Circuit("circuits/s298.txt")
+    # cir.initFaultUniverse(["16 0", "10 1"])
+    # cir.genTestSet()
 
     # if (len(sys.argv) == 1):
     #     run("circuits/s27.txt", "inputs/s27_input_1.txt", "outputs/s27_output_1.txt")
