@@ -412,7 +412,7 @@ class Circuit:
 
     def imply(self, wire_index_j, val_j):
         wire_j = self.getWire(wire_index_j)
-        if (wire_index_j == self.target_fault.wire_index and val_j != self.target_fault.stuck_val):
+        if (wire_index_j == self.target_fault.wire_index and val_j == inv(self.target_fault.stuck_val)):
             if (self.target_fault.stuck_val == 0):
                 wire_j.setValue(D)
             else:
@@ -469,7 +469,7 @@ class Circuit:
                     else:
                         test_bit = pi.getValue()
                     new_test_vec.append(test_bit)
-                    new_test_str.join(str(test_bit))
+                    new_test_str += str(test_bit)
                 print(new_test_str)
                 test_set.append(new_test_str)
                 new_detected_fault_set, detected_fault_str = self.getDetectedFaults(new_test_str)
@@ -548,8 +548,12 @@ def rand_run(netlist_path, target_coverage_str, fault_file_path = None):
 
         
 if __name__ == "__main__":
-    cir = Circuit("circuits/and_or.txt")
-    cir.initFaultUniverse(["2 0"])
+    # cir = Circuit("circuits/and_or.txt")
+    # cir.initFaultUniverse(["3 1", "4 0", "2 0"])
+    # cir.genTestSet()
+
+    cir = Circuit("circuits/s27.txt")
+    cir.initFaultUniverse(["16 0"])
     cir.genTestSet()
 
     # if (len(sys.argv) == 1):
