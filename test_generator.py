@@ -466,6 +466,8 @@ class Circuit:
                         test_bit = 1
                     elif (pi.getValue() == D_bar):
                         test_bit = 0
+                    elif (pi.getValue() == X):
+                        test_bit = 0
                     else:
                         test_bit = pi.getValue()
                     new_test_vec.append(test_bit)
@@ -473,6 +475,7 @@ class Circuit:
                 print(new_test_str)
                 test_set.append(new_test_str)
                 new_detected_fault_set, detected_fault_str = self.getDetectedFaults(new_test_str)
+                print(detected_fault_str)
                 fault_set -= new_detected_fault_set
             else:
                 print("Fault %s is undetectable!" %(self.target_fault))
@@ -549,11 +552,11 @@ def rand_run(netlist_path, target_coverage_str, fault_file_path = None):
         
 if __name__ == "__main__":
     # cir = Circuit("circuits/and_or.txt")
-    # cir.initFaultUniverse(["3 1", "4 0", "2 0"])
+    # cir.initFaultUniverse()
     # cir.genTestSet()
 
     cir = Circuit("circuits/s27.txt")
-    cir.initFaultUniverse(["16 0"])
+    cir.initFaultUniverse(["16 0", "10 1"])
     cir.genTestSet()
 
     # if (len(sys.argv) == 1):
