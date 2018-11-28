@@ -172,6 +172,7 @@ class Circuit:
         self.output_list = []
         self.fault_universe = []
         self.d_frontier = []
+        self.target_fault = None
 
         fp = open(cir_path, "r")
         cir_lines = fp.readlines()
@@ -345,39 +346,74 @@ class Circuit:
         
         return(wire_index_k, val)
     
-    def objective(self, target_fault):
-        wire_l = self.getWire(target_fault.wire_index)
-        if (wire_l.getVaule == X):
-            return(wire_l.index, int(not target_fault.stuck_val))
+    def objective(self):
+        wire_l = self.getWire(self.target_fault.wire_index)
+        if (wire_l.getValue() == X):
+            return(wire_l.index, int(not self.target_fault.stuck_val))
         for gate_g in self.d_frontier:
             for wire_j in gate_g.driven:
                 if (wire_j.getValue() == X):
                     break
         ctrl_val = gate_g.ctrl_val
-        return(wire_j.index, ctrl_val)
+        return(wire_j.index, int(not ctrl_val))
+
+    def findXPath(self, gate):
+        wire_next = gate.driving[0]
+        if (wire_next == X):
+            if (wire_next in self.output_list):
+                return(True)
+            else:
+                for gate_next in wire_next.driving:
+                    if (self.findXPath(gate_next)):
+                        return(True)
+                return(False)
+        else:
+            return(False)
+
+
+    def checkTestPossible(self):
+        wire_l = self.getWire(self.target_fault.wire_index)
+        if (wire_l.getValue() == self.target_fault.stuck_val):
+            return(False)
+        for gate in self.d_frontier:
+            if (self.findXPath(gate)):
+                return(True)
+        return(False)
+
+    def imply(self, wire_index_j, val_j):
+        wire_j = self.getWire(wire_index_j)
+        wire_j.setValue(val_j)
+        for gate_next in wire_j.drivnig:
+            val_next = gate_next.getValue()
 
     def PODEM(self):
         for po in self.output_list:
-            if (po.getValue == 2):
+            if (po.getValue() in [D, D_bar]):
                 return(True)
+        if (not self.checkTestPossible()):
+            return(False)
+        (k, v_k) = self.objective()
+        (j, v_j) = self.backtrace(k, v_k)
+
+
 
     def genTestSet(self):
         test_set = set()
         fault_set = set(self.fault_universe)
         while (fault_set):
-            target_fault = fault_set.pop()
+            self.target_fault = fault_set.pop()
             self.initWireValue([])
-            if (target_fault.stuck_val == 0):
-                self.getWire(target_fault.wire_index).setValue(D)
+            if (self.target_fault.stuck_val == 0):
+                self.getWire(self.target_fault.wire_index).setValue(D)
             else:
-                self.getWire(target_fault.wire_index).setValue(D_bar)
+                self.getWire(self.target_fault.wire_index).setValue(D_bar)
             if (self.PODEM()):
                 new_test_str = [str(pi.getValue()) for pi in self.input_list]
                 test_set.add(new_test_str)
                 new_detected_fault_set, detected_fault_str = self.getDetectedFaults(new_test_str)
                 fault_set -= new_detected_fault_set
             else:
-                print("Fault %s is undetectable!" %(target_fault))
+                print("Fault %s is undetectable!" %(self.target_fault))
 
 
 def run(netlist_path, input_file_path, output_file_path, fault_file_path = None):
