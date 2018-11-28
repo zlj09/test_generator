@@ -244,6 +244,8 @@ class Circuit:
             self.input_list[i].setValue(inputs[i])
 
     def initFaultList(self):
+        for wire in self.wire_dict.values():
+            wire.setFaultList(set())
         for fault in self.fault_universe:
             wire = self.getWire(fault.wire_index)
             if (fault.stuck_val != wire.getValue()):
@@ -547,17 +549,23 @@ def rand_run(netlist_path, target_coverage_str, fault_file_path = None):
 
         
 if __name__ == "__main__":
-    # cir = Circuit("circuits/and_or.txt")
-    # cir.initFaultUniverse()
+    #cir = Circuit("circuits/and_or.txt")
+    #cir.initFaultUniverse()
+    #cir.genTestSet()
+
+    # cir = Circuit("circuits/s27.txt")
+    # cir.initFaultUniverse(["16 0", "10 1", "12 0", "18 1"])
+    # cir.genTestSet()
+    
+    # cir = Circuit("circuits/s298f_2.txt")
+    # cir.initFaultUniverse(["70 1", "73 0", "26 1", "92 0"])
     # cir.genTestSet()
 
-    cir = Circuit("circuits/s27.txt")
-    cir.initFaultUniverse(["12 0"])
+    cir = Circuit("circuits/s344f_2.txt")
+    cir.initFaultUniverse(["166 0", "71 1", "16 0", "91 1"])
     cir.genTestSet()
-    
-    # cir = Circuit("circuits/s298.txt")
-    # cir.initFaultUniverse(["16 0", "10 1"])
-    # cir.genTestSet()
+    # print(cir.getDetectedFaults("100000000000000000000000")[1])
+    # print(cir.getDetectedFaults("010000000001100000000000")[1])
 
     # if (len(sys.argv) == 1):
     #     run("circuits/s27.txt", "inputs/s27_input_1.txt", "outputs/s27_output_1.txt")
