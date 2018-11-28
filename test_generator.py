@@ -318,6 +318,17 @@ class Circuit:
             detected_fault_str += str(fault) + "\n"
         
         return(detected_fault_list, detected_fault_str)
+
+    def multiFaultSim(self, input_str_list):
+        detected_fault_list = set()
+        for input_str in input_str_list:
+            new_detected_fault_list, new_detected_fault_str = self.getDetectedFaults(input_str)
+            detected_fault_list |= new_detected_fault_list
+        detected_fault_str = "Num of detected faults: " + str(len(detected_fault_list)) + "\n"
+        for fault in sorted(list(detected_fault_list), key = lambda fault: int(fault.wire_index)):
+            detected_fault_str += str(fault) + "\n"
+        return(detected_fault_list, detected_fault_str)
+
     
     def randomDetect(self, target_coverage, fault_str_list = []):
         coverage = 0
@@ -473,10 +484,11 @@ class Circuit:
                 print(new_test_str)
                 test_set.append(new_test_str)
                 new_detected_fault_set, detected_fault_str = self.getDetectedFaults(new_test_str)
-                print(detected_fault_str)
+                # print(detected_fault_str)
                 fault_set -= new_detected_fault_set
             else:
                 print("Fault %s is undetectable!" %(self.target_fault))
+        return(test_set)
 
 
 def run(netlist_path, input_file_path, output_file_path, fault_file_path = None):
@@ -553,9 +565,11 @@ if __name__ == "__main__":
     #cir.initFaultUniverse()
     #cir.genTestSet()
 
-    # cir = Circuit("circuits/s27.txt")
-    # cir.initFaultUniverse(["16 0", "10 1", "12 0", "18 1"])
-    # cir.genTestSet()
+    cir = Circuit("circuits/s27.txt")
+    cir.initFaultUniverse(["16 0", "10 1", "12 0", "18 1"])
+    test_set = cir.genTestSet()
+    detected_fault_list, detected_fault_str = cir.multiFaultSim(test_set)
+    print(detected_fault_str)
     
     # cir = Circuit("circuits/s298f_2.txt")
     # cir.initFaultUniverse(["70 1", "73 0", "26 1", "92 0"])
@@ -567,9 +581,9 @@ if __name__ == "__main__":
     # print(cir.getDetectedFaults("100000000000000000000000")[1])
     # print(cir.getDetectedFaults("010000000001100000000000")[1])
 
-    cir = Circuit("circuits/s349f_2.txt")
-    cir.initFaultUniverse(["25 1", "51 0", "105 1", "7 0"])
-    cir.genTestSet()
+    # cir = Circuit("circuits/s349f_2.txt")
+    # cir.initFaultUniverse(["25 1", "51 0", "105 1", "7 0"])
+    # cir.genTestSet()
 
     # if (len(sys.argv) == 1):
     #     run("circuits/s27.txt", "inputs/s27_input_1.txt", "outputs/s27_output_1.txt")
