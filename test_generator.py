@@ -301,7 +301,7 @@ class Circuit:
                 if wire.getValue() == X:
                     gate = wire.driven[0]
                     output_value, unknown_list = gate.getValue()
-                    if output_value == X:
+                    if (unknown_list):
                         wire_stack.append(wire)
                         wire_stack = wire_stack + unknown_list
                     else:
