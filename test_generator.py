@@ -67,6 +67,9 @@ ctrl_val_dict = {
     "NOR" : 1
 }
 
+def inv(b):
+    return(int(not b))
+
 class Fault:
     def __init__(self, wire_index, stuck_val):
         self.wire_index = wire_index
@@ -373,13 +376,13 @@ class Circuit:
     def objective(self):
         wire_l = self.getWire(self.target_fault.wire_index)
         if (wire_l.getValue() == X):
-            return(wire_l.index, int(not self.target_fault.stuck_val))
+            return(wire_l.index, inv(self.target_fault.stuck_val))
         for gate_g in self.d_frontier:
             for wire_j in gate_g.driven:
                 if (wire_j.getValue() == X):
                     break
         ctrl_val = gate_g.ctrl_val
-        return(wire_j.index, int(not ctrl_val))
+        return(wire_j.index, inv(ctrl_val))
 
     def findXPath(self, gate):
         wire_next = gate.driving[0]
@@ -407,8 +410,16 @@ class Circuit:
     def imply(self, wire_index_j, val_j):
         wire_j = self.getWire(wire_index_j)
         wire_j.setValue(val_j)
+        if (wire_j in self.output_list):
+            return
         for gate_next in wire_j.drivnig:
             val_next = gate_next.getValue()
+            wire_index_next = gate_next.driving[0]
+            if (val_next in [D, D_bar]):
+                self.d_frontier.append(gate_next)
+            if (gate_next in self.d_frontier and not (val_next in [D, D_bar])):
+                self.d_frontier.remove(gate_next)
+            self.imply(wire_index_next, val_next)
 
     def PODEM(self):
         for po in self.output_list:
@@ -418,8 +429,14 @@ class Circuit:
             return(False)
         (k, v_k) = self.objective()
         (j, v_j) = self.backtrace(k, v_k)
-
-
+        self.imply(j, v_j)
+        if (self.PODEM()):
+            return(True)
+        self.imply(j, inv(v_j))
+        if (self.PODEM()):
+            return(True)
+        self.imply(j, X)
+        return(False)
 
     def genTestSet(self):
         test_set = set()
@@ -433,6 +450,7 @@ class Circuit:
                 self.getWire(self.target_fault.wire_index).setValue(D_bar)
             if (self.PODEM()):
                 new_test_str = [str(pi.getValue()) for pi in self.input_list]
+                print(new_test_str)
                 test_set.add(new_test_str)
                 new_detected_fault_set, detected_fault_str = self.getDetectedFaults(new_test_str)
                 fault_set -= new_detected_fault_set
@@ -507,10 +525,6 @@ def rand_run(netlist_path, target_coverage_str, fault_file_path = None):
     cir = Circuit(netlist_path)
     target_coverage = float(target_coverage_str)
     cir.randomDetect(target_coverage, fault_str_list)
-
-
-            
-
 
         
 if __name__ == "__main__":
