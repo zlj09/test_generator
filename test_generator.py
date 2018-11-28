@@ -561,11 +561,15 @@ if __name__ == "__main__":
     # cir.initFaultUniverse(["70 1", "73 0", "26 1", "92 0"])
     # cir.genTestSet()
 
-    cir = Circuit("circuits/s344f_2.txt")
-    cir.initFaultUniverse(["166 0", "71 1", "16 0", "91 1"])
-    cir.genTestSet()
+    # cir = Circuit("circuits/s344f_2.txt")
+    # cir.initFaultUniverse(["166 0", "71 1", "16 0", "91 1"])
+    # cir.genTestSet()
     # print(cir.getDetectedFaults("100000000000000000000000")[1])
     # print(cir.getDetectedFaults("010000000001100000000000")[1])
+
+    cir = Circuit("circuits/s349f_2.txt")
+    cir.initFaultUniverse(["25 1", "51 0", "105 1", "7 0"])
+    cir.genTestSet()
 
     # if (len(sys.argv) == 1):
     #     run("circuits/s27.txt", "inputs/s27_input_1.txt", "outputs/s27_output_1.txt")
