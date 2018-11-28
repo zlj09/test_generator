@@ -400,6 +400,8 @@ class Circuit:
 
     def checkTestPossible(self):
         wire_l = self.getWire(self.target_fault.wire_index)
+        if (wire_l.getValue() == X): # the target fault haven't been activated
+            return(True)
         if (wire_l.getValue() == self.target_fault.stuck_val):
             return(False)
         for gate in self.d_frontier:
@@ -409,16 +411,26 @@ class Circuit:
 
     def imply(self, wire_index_j, val_j):
         wire_j = self.getWire(wire_index_j)
-        wire_j.setValue(val_j)
+        if (wire_index_j == self.target_fault.wire_index and val_j != self.target_fault.stuck_val):
+            if (self.target_fault.stuck_val == 0):
+                wire_j.setValue(D)
+            else:
+                wire_j.setValue(D_bar)
+        else:
+            wire_j.setValue(val_j)
         if (wire_j in self.output_list):
             return
         for gate_next in wire_j.drivnig:
-            val_next = gate_next.getValue()
-            wire_index_next = gate_next.driving[0]
-            if (val_next in [D, D_bar]):
+            wire_next = gate_next.driving[0]
+            if (wire_j.getValue() in [D, D_bar] and wire_next.getValue() == X):
                 self.d_frontier.append(gate_next)
-            if (gate_next in self.d_frontier and not (val_next in [D, D_bar])):
-                self.d_frontier.remove(gate_next)
+            if (gate_next in self.d_frontier):
+                input_list = [input_wire.getValue() for input_wire in gate_next.driven]
+                if (not ((D in input_list) or (D_bar in input_list))):
+                    self.d_frontier.remove(gate_next)
+            
+            val_next = gate_next.getValue()
+            wire_index_next = wire_next.index
             self.imply(wire_index_next, val_next)
 
     def PODEM(self):
@@ -444,10 +456,6 @@ class Circuit:
         while (fault_set):
             self.target_fault = fault_set.pop()
             self.initWireValue([])
-            if (self.target_fault.stuck_val == 0):
-                self.getWire(self.target_fault.wire_index).setValue(D)
-            else:
-                self.getWire(self.target_fault.wire_index).setValue(D_bar)
             if (self.PODEM()):
                 new_test_str = [str(pi.getValue()) for pi in self.input_list]
                 print(new_test_str)
