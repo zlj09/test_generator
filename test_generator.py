@@ -416,8 +416,7 @@ class Circuit:
                 wire_j.setValue(D_bar)
         else:
             wire_j.setValue(val_j)
-        if (wire_j in self.output_list):
-            return
+    
         for gate_next in wire_j.driving:
             wire_next = gate_next.driving[0]
             val_next, unknown_list = gate_next.getValue()
