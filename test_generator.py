@@ -361,8 +361,8 @@ class Circuit:
 
     def backtrace(self, wire_index_k, trace_val_k):
         val = trace_val_k
-        while (not (wire_index_k in self.input_list)):
-            wire_k = self.getWire(wire_index_k)
+        wire_k = self.getWire(wire_index_k)
+        while (not (wire_k in self.input_list)):
             gate_k = wire_k.driven[0]
             inversion = gate_k.inversion
             for wire_j in gate_k.driven:
@@ -370,6 +370,7 @@ class Circuit:
                     break
             val = val ^ inversion
             wire_index_k = wire_j.index
+            wire_k = wire_j
         
         return(wire_index_k, val)
     
@@ -386,7 +387,7 @@ class Circuit:
 
     def findXPath(self, gate):
         wire_next = gate.driving[0]
-        if (wire_next == X):
+        if (wire_next.getValue() == X):
             if (wire_next in self.output_list):
                 return(True)
             else:
@@ -420,17 +421,18 @@ class Circuit:
             wire_j.setValue(val_j)
         if (wire_j in self.output_list):
             return
-        for gate_next in wire_j.drivnig:
+        for gate_next in wire_j.driving:
             wire_next = gate_next.driving[0]
-            if (wire_j.getValue() in [D, D_bar] and wire_next.getValue() == X):
+            val_next, unknown_list = gate_next.getValue()
+            wire_index_next = wire_next.index
+
+            if (wire_j.getValue() in [D, D_bar] and val_next == X):
                 self.d_frontier.append(gate_next)
-            if (gate_next in self.d_frontier):
+            elif (gate_next in self.d_frontier):
                 input_list = [input_wire.getValue() for input_wire in gate_next.driven]
                 if (not ((D in input_list) or (D_bar in input_list))):
                     self.d_frontier.remove(gate_next)
-            
-            val_next = gate_next.getValue()
-            wire_index_next = wire_next.index
+
             self.imply(wire_index_next, val_next)
 
     def PODEM(self):
@@ -451,15 +453,25 @@ class Circuit:
         return(False)
 
     def genTestSet(self):
-        test_set = set()
+        test_set = []
         fault_set = set(self.fault_universe)
         while (fault_set):
             self.target_fault = fault_set.pop()
             self.initWireValue([])
             if (self.PODEM()):
-                new_test_str = [str(pi.getValue()) for pi in self.input_list]
+                new_test_vec = []
+                new_test_str = ""
+                for pi in self.input_list:
+                    if (pi.getValue() == D):
+                        test_bit = 1
+                    elif (pi.getValue() == D_bar):
+                        test_bit = 0
+                    else:
+                        test_bit = pi.getValue()
+                    new_test_vec.append(test_bit)
+                    new_test_str.join(str(test_bit))
                 print(new_test_str)
-                test_set.add(new_test_str)
+                test_set.append(new_test_str)
                 new_detected_fault_set, detected_fault_str = self.getDetectedFaults(new_test_str)
                 fault_set -= new_detected_fault_set
             else:
