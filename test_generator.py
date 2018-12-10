@@ -269,9 +269,24 @@ class Circuit:
                 for stuck_val in [0, 1]:
                     fault = Fault(wire_index, stuck_val)
                     self.fault_universe.append(fault)
+    
+    def getInputVec(self, inputs_str):
+        input_vec = []
+        for ch in inputs_str:
+            if (ch in ['0', '1']):
+                input_vec.append(int(ch))
+            elif (ch in ['x', 'X', 'u', "U"]):
+                input_vec.append(0)
+            elif (ch == "\n"):
+                continue
+            else:
+                print("Illegal character %c in input string!" % (ch))
+        
+        return(input_vec)
+
 
     def getOutputs(self, inputs_str):
-        inputs = [int(digit) for digit in inputs_str]
+        inputs = self.getInputVec(inputs_str)
         self.initWireValue(inputs)
         wire_stack = []
         output_str = ""
@@ -293,7 +308,7 @@ class Circuit:
         return(output_str)
 
     def getDetectedFaults(self, inputs_str):
-        inputs = [int(digit) for digit in inputs_str]
+        inputs = self.getInputVec(inputs_str)
         self.initWireValue(inputs)
         self.initFaultList()
         wire_stack = []
