@@ -551,6 +551,27 @@ def sim(netlist_path, input_file_path, output_file_path, fault_file_path = None)
     input_file.close()
     output_file.close()
 
+def rand_test(netlist_path, target_coverage_str, fault_file_path = None):
+    print("Netlist Path: %s" %netlist_path)
+    print("Target coverage: %s" %target_coverage_str)
+
+    fault_str_list = []
+    if (fault_file_path):
+        print("Fault File Path: %s" %fault_file_path)
+        fault_file = open(fault_file_path, "r")
+        print("Read the list of fault to be simulated...")
+        for line in fault_file:
+            fault_str_list.append(line)
+        print("Reading completed, %d faults read" % (len(fault_str_list)))
+        fault_file.close()
+    else:
+        print("No fault definition file provided")
+        print("Simulate all the stuck-at fault in the circuit")
+
+    cir = Circuit(netlist_path)
+    target_coverage = float(target_coverage_str)
+    cir.randomDetect(target_coverage, fault_str_list)
+
 def gen(netlist_path, test_file_path, fault_file_path = None):
     print("***** Test Generation ******")
     print("Netlist Path: %s" %netlist_path)
@@ -607,23 +628,41 @@ if __name__ == "__main__":
         sim("circuits/s349f_2.txt", "inputs/s349f_2_inputs.txt", "outputs/s349f_2_outputs.txt", "faults/s349_f2_faults.txt")
     elif (len(sys.argv) >= 4 and sys.argv[1] == "-run"):
         run(*sys.argv[2:])
-    elif (len(sys.argv) >= 4 and sys.argv[1] == "-sim"):
+    elif (len(sys.argv) >= 5 and sys.argv[1] == "-sim"):
         sim(*sys.argv[2:])
+    elif (len(sys.argv) >= 4 and sys.argv[1] == "-rand_test"):
+        rand_test(*sys.argv[2:])
     elif (len(sys.argv) >= 4 and sys.argv[1] == "-gen"):
         gen(*sys.argv[2:])
     else:
-        print("Usage 1: ")
-        print("python fault_simulator.py (No parameter)")
-        print("\tFunction: simulate the 4 given circuits: s27, s298f_2, s344f_2, s249f_2 using given test vectors, considering all stuck-at faults\n")
-        print("Usage 2: ")
-        print("python fault_simulator.py -run NETLIST_FILE_PATH INPUT_FILE_PATH OUTPUT_FILE_PATH [FAULT_FILE_PATH]")
-        print("\tFunction: simulate a circuit (defined in NETLIST_FILE) with a test vector provided in the INPUT_FILE, print the results to OUTPUT_FILE, considering the faults defined in FAULT_FILE (optional)")
-        print("\tExample 1: python fault_simulator.py -run circuits\s27.txt inputs\s27_input_3.txt outputs\s27_output_3.txt")
-        print("\tExample 2: python fault_simulator.py -run circuits\s27.txt inputs\s27_input_3.txt outputs\s27_output_3.txt faults\s27_fault_1.txt\n")
-        print("Usage 3: ")
-        print("python fault_simulator.py -rand_run NETLIST_FILE_PATH TARGET_COVERAGE [FAULT_FILE_PATH]")
-        print("\tFunction: apply random test vectors to a circuit (defined in NETLIST_FILE), count the number of vectors needed to achieve the TARGET_COVERAGE, considering the faults defined in FAULT_FILE (optional)")
-        print("\tExample 1: python fault_simulator.py -rand_run circuits\s27.txt 0.9")
-        print("\tExample 2: python fault_simulator.py -rand_run circuits\s27.txt 0.9 faults\s27_fault_1.txt\n")
+        print("Usage 0: Help")
+        print("python test_generator.py -help")
+        print("\tPrint this help message\n")
+
+        print("Usage 1: Demo")
+        print("python test_generator.py (No parameter)")
+        print("\tFunction: generate tests for the 4 given circuits: s27, s298f_2, s344f_2, s249f_2 and verify the results using the fault simulator\n")
+
+        print("Usage 2: Logic Simulation")
+        print("python test_generator.py -run NETLIST_FILE_PATH INPUT_FILE_PATH OUTPUT_FILE_PATH")
+        print("\tFunction: run logic simulation for a circuit (defined in NETLIST_FILE) with a test vector provided in the INPUT_FILE, print the outputs to OUTPUT_FILE")
+        print("\tExample: python test_generator.py -run circuits\s27.txt inputs\s27_inputs.txt outputs\s27_outputs.txt\n")
+
+        print("Usage 3: Fault Simulation")
+        print("python test_generator.py -sim NETLIST_FILE_PATH INPUT_FILE_PATH OUTPUT_FILE_PATH [FAULT_FILE_PATH]")
+        print("\tFunction: run fault simulation for a circuit (defined in NETLIST_FILE) with a test vector provided in the INPUT_FILE, print the results to OUTPUT_FILE, considering the faults defined in FAULT_FILE (optional, considering all stuck-at-faults if not provided)")
+        print("\tExample 1: python test_generator.py -sim circuits\s27.txt inputs\s27_inputs.txt outputs\s27_outputs.txt")
+        print("\tExample 2: python test_generator.py -sim circuits\s27.txt inputs\s27_inputs.txt outputs\s27_outputs.txt faults\s27_faults.txt\n")
         
+        print("Usage 4: Random Test")
+        print("python test_generator.py -rand_test NETLIST_FILE_PATH TARGET_COVERAGE [FAULT_FILE_PATH]")
+        print("\tFunction: apply random test vectors to a circuit (defined in NETLIST_FILE), count the number of vectors needed to achieve the TARGET_COVERAGE, considering the faults defined in FAULT_FILE (optional, considering all stuck-at-faults if not provided)")
+        print("\tExample 1: python test_generator.py -rand_test circuits\s27.txt 0.9")
+        print("\tExample 2: python test_generator.py -rand_test circuits\s27.txt 0.9 faults\s27_faults.txt\n")
+        
+        print("Usage 5: Test Generation")
+        print("python test_generator.py -gen NETLIST_FILE_PATH TEST_FILE_PATH [FAULT_FILE_PATH]")
+        print("\tFunction: generate test for a circuit (defined in NETLIST_FILE) and print the test set to TEST_FILE, considering the faults defined in FAULT_FILE (optional, considering all stuck-at-faults if not provided)")
+        print("\tExample 1: python test_generator.py -gen circuits\s27.txt inputs\s27_inputs.txt")
+        print("\tExample 2: python test_generator.py -gen circuits\s27.txt inputs\s27_inputs.txt faults\s27_faults.txt\n")
     

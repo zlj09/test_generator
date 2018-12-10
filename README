@@ -4,25 +4,42 @@ Setup
     Besides, numpy and matplotlib are optional. They are used to draw the test vector number vs. coverage curve. The program can still run without the two packages. Also, if you like, you can use Anaconda3 Python 3.7 version (https://www.anaconda.com/download/) to setup the environment.
 
 Run
-    The main program is fault_simulator.py. The usage of the program is shown as below. You can also check the usage by typing python fault_simulator.py --help.
+    The main program is test_generator.py. The usage of the program is shown as below. You can also check the usage by typing python test_generator.py --help.
 
-    Usage 1:
-    python fault_simulator.py (No parameter)
-            Function: simulate the 4 given circuits: s27, s298f_2, s344f_2, s249f_2 using given test vectors, considering all stuck-at faults
-
-    Usage 2:
-    python fault_simulator.py -run NETLIST_FILE_PATH INPUT_FILE_PATH OUTPUT_FILE_PATH [FAULT_FILE_PATH]
-            Function: simulate a circuit (defined in NETLIST_FILE) with a test vector provided in the INPUT_FILE, print the results to OUTPUT_FILE, considering the faults defined in FAULT_FILE (optional)
-            Example 1: python fault_simulator.py -run circuits\s27.txt inputs\s27_input_3.txt outputs\s27_output_3.txt
-            Example 2: python fault_simulator.py -run circuits\s27.txt inputs\s27_input_3.txt outputs\s27_output_3.txt faults\s27_fault_1.txt
-
-    Usage 3:
-    python fault_simulator.py -rand_run NETLIST_FILE_PATH TARGET_COVERAGE [FAULT_FILE_PATH]
-            Function: apply random test vectors to a circuit (defined in NETLIST_FILE), count the number of vectors needed to achieve the TARGET_COVERAGE, considering the faults defined in FAULT_FILE (optional)
-            Example 1: python fault_simulator.py -rand_run circuits\s27.txt 0.9
-            Example 2: python fault_simulator.py -rand_run circuits\s27.txt 0.9 faults\s27_fault_1.txt
+    Usage 0: Help
+    python test_generator.py -help
+            Print this help message
+    
+    Usage 1: Demo
+    python test_generator.py (No parameter)
+            Function: generate tests for the 4 given circuits: s27, s298f_2, s344f_2, s249f_2 and verify the results using the fault simulator
+    
+    Usage 2: Logic Simulation
+    python test_generator.py -run NETLIST_FILE_PATH INPUT_FILE_PATH OUTPUT_FILE_PATH
+            Function: run logic simulation for a circuit (defined in NETLIST_FILE) with a test vector provided in the INPUT_FILE, print the outputs to OUTPUT_FILE
+            Example: python test_generator.py -run circuits\s27.txt inputs\s27_inputs.txt outputs\s27_outputs.txt
+    
+    Usage 3: Fault Simulation
+    python test_generator.py -sim NETLIST_FILE_PATH INPUT_FILE_PATH OUTPUT_FILE_PATH [FAULT_FILE_PATH]
+            Function: run fault simulation for a circuit (defined in NETLIST_FILE) with a test vector provided in the INPUT_FILE, print the results to OUTPUT_FILE, considering the faults defined in FAULT_FILE (optional, considering all stuck-at-faults if not provided)
+            Example 1: python test_generator.py -sim circuits\s27.txt inputs\s27_inputs.txt outputs\s27_outputs.txt
+            Example 2: python test_generator.py -sim circuits\s27.txt inputs\s27_inputs.txt outputs\s27_outputs.txt faults\s27_faults.txt
+    
+    Usage 4: Random Test
+    python test_generator.py -rand_test NETLIST_FILE_PATH TARGET_COVERAGE [FAULT_FILE_PATH]
+            Function: apply random test vectors to a circuit (defined in NETLIST_FILE), count the number of vectors needed to achieve the TARGET_COVERAGE, considering the faults defined in FAULT_FILE (optional, considering all stuck-at-faults if not provided)
+            Example 1: python test_generator.py -rand_test circuits\s27.txt 0.9
+            Example 2: python test_generator.py -rand_test circuits\s27.txt 0.9 faults\s27_faults.txt
+    
+    Usage 5: Test Generation
+    python test_generator.py -gen NETLIST_FILE_PATH TEST_FILE_PATH [FAULT_FILE_PATH]
+            Function: generate test for a circuit (defined in NETLIST_FILE) and print the test set to TEST_FILE, considering the faults defined in FAULT_FILE (optional, considering all stuck-at-faults if not provided)
+            Example 1: python test_generator.py -gen circuits\s27.txt inputs\s27_inputs.txt
+            Example 2: python test_generator.py -gen circuits\s27.txt inputs\s27_inputs.txt faults\s27_faults.txt
 
 
 Output
-    In -run mode, the program will print all the faults detected by the test vector and the total number of detected faults.
-    In -rand_run mode, the program will print the coverages with increasing number of test vectors, and the total number of random vectors needed to achieve the target coverage.
+    In logic simulation mode, the program will print the output logic values corresponding to each input test vectors; the order of bits depends on the order of output pins specified in the netlist file 
+    In fault simulation mode, the program will print all the faults detected by the test vector and the total number of detected faults
+    In random test mode, the program will print the coverages with increasing number of test vectors, and the total number of random vectors needed to achieve the target coverage
+    In test generation mode, the program will print the generated test vectors into the test file; each test vector will occupy one line, with the same format as the input file for the logic simulation mode
