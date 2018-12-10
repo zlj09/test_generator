@@ -228,6 +228,8 @@ class Circuit:
                 gate.addDriving(wire)
                 wire.addDriven(gate)
 
+        fp.close()
+
     def __str__(self):
         cir_str = "Input: \n"
         for wire in self.input_list:
@@ -481,17 +483,41 @@ class Circuit:
                         test_bit = pi.getValue()
                     new_test_vec.append(test_bit)
                     new_test_str += str(test_bit)
-                print(new_test_str)
+                # print(new_test_str)
                 test_set.append(new_test_str)
                 new_detected_fault_set, detected_fault_str = self.getDetectedFaults(new_test_str)
                 # print(detected_fault_str)
                 fault_set -= new_detected_fault_set
             else:
-                print("Fault %s is undetectable!" %(self.target_fault))
+                # print("Fault %s is undetectable!" %(self.target_fault))
+                return([])
         return(test_set)
 
+def run(netlist_path, input_file_path, output_file_path):
+    print("***** Logic Simulation ******")
+    print("Netlist Path: %s" %netlist_path)
+    print("Input File Path: %s" %input_file_path)
+    print("Output File Path: %s" %output_file_path)
 
-def run(netlist_path, input_file_path, output_file_path, fault_file_path = None):
+    cir = Circuit(netlist_path)
+    inputs = ""
+    outputs = ""
+    input_file = open(input_file_path, 'r')
+    output_file = open(output_file_path, 'w')
+    for input_str in input_file:
+        inputs += input_str
+        if (input_str[-1] == '\n'):
+            input_str = input_str[0:-1]
+        output_str = cir.getOutputs(input_str)
+        outputs += output_str + '\n'
+    
+    outputs = outputs[0:-1]
+    output_file.write(outputs)
+    print("Inputs:\n%s" %inputs)
+    print("Outputs:\n%s" %outputs)
+
+def sim(netlist_path, input_file_path, output_file_path, fault_file_path = None):
+    print("***** Fault Simulation ******")
     print("Netlist Path: %s" %netlist_path)
     print("Input File Path: %s" %input_file_path)
     print("Output File Path: %s" %output_file_path)
@@ -502,10 +528,6 @@ def run(netlist_path, input_file_path, output_file_path, fault_file_path = None)
         fault_file = open(fault_file_path, "r")
         print("Read the list of fault to be simulated...")
         for line in fault_file:
-            line = line.replace("x", "0")
-            line = line.replace("u", "0")
-            line = line.replace("X", "0")
-            line = line.replace("U", "0")
             fault_str_list.append(line)
         print("Reading completed, %d faults read" % (len(fault_str_list)))
         fault_file.close()
@@ -519,24 +541,20 @@ def run(netlist_path, input_file_path, output_file_path, fault_file_path = None)
     output_file = open(output_file_path, 'w')
 
     cir.initFaultUniverse(fault_str_list)
-    inputs_str = input_file.readline()
-    inputs_str = inputs_str.replace("\n", "")
-    inputs_str = inputs_str.replace("x", "0")
-    inputs_str = inputs_str.replace("u", "0")
-    inputs_str = inputs_str.replace("X", "0")
-    inputs_str = inputs_str.replace("U", "0")
-    detected_fault_list, detected_fault_str = cir.getDetectedFaults(inputs_str)
+    input_str_list = [line.replace("\n", "") for line in input_file]
+    detected_fault_list, detected_fault_str = cir.multiFaultSim(input_str_list)
     output_file.write(detected_fault_str)
 
-    print("Input: \n%s" %(inputs_str))
+    print("Input: \n%s" %(input_str_list))
     print("Output: \n%s" %(detected_fault_str))
 
     input_file.close()
     output_file.close()
 
-def rand_run(netlist_path, target_coverage_str, fault_file_path = None):
+def gen(netlist_path, test_file_path, fault_file_path = None):
+    print("***** Test Generation ******")
     print("Netlist Path: %s" %netlist_path)
-    print("Target coverage: %s" %target_coverage_str)
+    print("Test File Path: %s" %test_file_path)
 
     fault_str_list = []
     if (fault_file_path):
@@ -544,10 +562,6 @@ def rand_run(netlist_path, target_coverage_str, fault_file_path = None):
         fault_file = open(fault_file_path, "r")
         print("Read the list of fault to be simulated...")
         for line in fault_file:
-            line.replace("x", "0")
-            line.replace("u", "0")
-            line.replace("X", "0")
-            line.replace("U", "0")
             fault_str_list.append(line)
         print("Reading completed, %d faults read" % (len(fault_str_list)))
         fault_file.close()
@@ -556,63 +570,60 @@ def rand_run(netlist_path, target_coverage_str, fault_file_path = None):
         print("Simulate all the stuck-at fault in the circuit")
 
     cir = Circuit(netlist_path)
-    target_coverage = float(target_coverage_str)
-    cir.randomDetect(target_coverage, fault_str_list)
+    test_file = open(test_file_path, 'w')
 
+    cir.initFaultUniverse(fault_str_list)
+
+    print("Generating test set for the faults...")
+    test_set = cir.genTestSet()
+
+    if (test_set):
+        print("Test generation succeeded! Test vectors are: ")
+        for test_vec in test_set:
+            print(test_vec)
+            test_file.write(test_vec + "\n")
+        print("Size of the test set: %d" % (len(test_set)))
+        print("The test vectors are written into %s" % (test_file_path))
+    else:
+        print("Fault %s is undetectable!" %(cir.target_fault))
+        print("Test generation failed!")
+
+    print("\n")
+
+    test_file.close()
         
 if __name__ == "__main__":
-    #cir = Circuit("circuits/and_or.txt")
-    #cir.initFaultUniverse()
-    #cir.genTestSet()
+    if (len(sys.argv) == 1):
+        gen("circuits/s27.txt", "inputs/s27_inputs.txt", "faults/s27_faults.txt")
+        sim("circuits/s27.txt", "inputs/s27_inputs.txt", "outputs/s27_outputs.txt", "faults/s27_faults.txt")
 
-    cir = Circuit("circuits/s27.txt")
-    cir.initFaultUniverse(["16 0", "10 1", "12 0", "18 1"])
-    test_set = cir.genTestSet()
-    detected_fault_list, detected_fault_str = cir.multiFaultSim(test_set)
-    print(detected_fault_str)
-    
-    # cir = Circuit("circuits/s298f_2.txt")
-    # cir.initFaultUniverse(["70 1", "73 0", "26 1", "92 0"])
-    # cir.genTestSet()
+        gen("circuits/s298f_2.txt", "inputs/s298f_2_inputs.txt", "faults/s298_f2_faults.txt")
+        sim("circuits/s298f_2.txt", "inputs/s298f_2_inputs.txt", "outputs/s298f_2_outputs.txt", "faults/s298_f2_faults.txt")
 
-    # cir = Circuit("circuits/s344f_2.txt")
-    # cir.initFaultUniverse(["166 0", "71 1", "16 0", "91 1"])
-    # cir.genTestSet()
-    # print(cir.getDetectedFaults("100000000000000000000000")[1])
-    # print(cir.getDetectedFaults("010000000001100000000000")[1])
+        gen("circuits/s344f_2.txt", "inputs/s344f_2_inputs.txt", "faults/s344_f2_faults.txt")
+        sim("circuits/s344f_2.txt", "inputs/s344f_2_inputs.txt", "outputs/s344f_2_outputs.txt", "faults/s344_f2_faults.txt")
 
-    # cir = Circuit("circuits/s349f_2.txt")
-    # cir.initFaultUniverse(["25 1", "51 0", "105 1", "7 0"])
-    # cir.genTestSet()
-
-    # if (len(sys.argv) == 1):
-    #     run("circuits/s27.txt", "inputs/s27_input_1.txt", "outputs/s27_output_1.txt")
-    #     run("circuits/s27.txt", "inputs/s27_input_2.txt", "outputs/s27_output_2.txt")
-    #     run("circuits/s298f_2.txt", "inputs/s298f_2_input_1.txt", "outputs/s298f_2_output_1.txt")
-    #     run("circuits/s298f_2.txt", "inputs/s298f_2_input_2.txt", "outputs/s298f_2_output_2.txt")
-    #     run("circuits/s344f_2.txt", "inputs/s344f_2_input_1.txt", "outputs/s344f_2_output_1.txt")
-    #     run("circuits/s344f_2.txt", "inputs/s344f_2_input_2.txt", "outputs/s344f_2_output_2.txt")
-    #     run("circuits/s349f_2.txt", "inputs/s349f_2_input_1.txt", "outputs/s349f_2_output_1.txt")
-    #     run("circuits/s349f_2.txt", "inputs/s349f_2_input_2.txt", "outputs/s349f_2_output_2.txt")
-    # elif (len(sys.argv) >= 5 and sys.argv[1] == "-run"):
-    #     run(*sys.argv[2:])
-    # elif (len(sys.argv) >= 4 and sys.argv[1] == "-rand_run"):
-    #     rand_run(*sys.argv[2:])
-    # else:
-    #     print("Usage 1: ")
-    #     print("python fault_simulator.py (No parameter)")
-    #     print("\tFunction: simulate the 4 given circuits: s27, s298f_2, s344f_2, s249f_2 using given test vectors, considering all stuck-at faults\n")
-# 
-    #     print("Usage 2: ")
-    #     print("python fault_simulator.py -run NETLIST_FILE_PATH INPUT_FILE_PATH OUTPUT_FILE_PATH [FAULT_FILE_PATH]")
-    #     print("\tFunction: simulate a circuit (defined in NETLIST_FILE) with a test vector provided in the INPUT_FILE, print the results to OUTPUT_FILE, considering the faults defined in FAULT_FILE (optional)")
-    #     print("\tExample 1: python fault_simulator.py -run circuits\s27.txt inputs\s27_input_3.txt outputs\s27_output_3.txt")
-    #     print("\tExample 2: python fault_simulator.py -run circuits\s27.txt inputs\s27_input_3.txt outputs\s27_output_3.txt faults\s27_fault_1.txt\n")
-# 
-    #     print("Usage 3: ")
-    #     print("python fault_simulator.py -rand_run NETLIST_FILE_PATH TARGET_COVERAGE [FAULT_FILE_PATH]")
-    #     print("\tFunction: apply random test vectors to a circuit (defined in NETLIST_FILE), count the number of vectors needed to achieve the TARGET_COVERAGE, considering the faults defined in FAULT_FILE (optional)")
-    #     print("\tExample 1: python fault_simulator.py -rand_run circuits\s27.txt 0.9")
-    #     print("\tExample 2: python fault_simulator.py -rand_run circuits\s27.txt 0.9 faults\s27_fault_1.txt\n")
+        gen("circuits/s349f_2.txt", "inputs/s349f_2_inputs.txt", "faults/s349_f2_faults.txt")
+        sim("circuits/s349f_2.txt", "inputs/s349f_2_inputs.txt", "outputs/s349f_2_outputs.txt", "faults/s349_f2_faults.txt")
+    elif (len(sys.argv) >= 4 and sys.argv[1] == "-run"):
+        run(*sys.argv[2:])
+    elif (len(sys.argv) >= 4 and sys.argv[1] == "-sim"):
+        sim(*sys.argv[2:])
+    elif (len(sys.argv) >= 4 and sys.argv[1] == "-gen"):
+        gen(*sys.argv[2:])
+    else:
+        print("Usage 1: ")
+        print("python fault_simulator.py (No parameter)")
+        print("\tFunction: simulate the 4 given circuits: s27, s298f_2, s344f_2, s249f_2 using given test vectors, considering all stuck-at faults\n")
+        print("Usage 2: ")
+        print("python fault_simulator.py -run NETLIST_FILE_PATH INPUT_FILE_PATH OUTPUT_FILE_PATH [FAULT_FILE_PATH]")
+        print("\tFunction: simulate a circuit (defined in NETLIST_FILE) with a test vector provided in the INPUT_FILE, print the results to OUTPUT_FILE, considering the faults defined in FAULT_FILE (optional)")
+        print("\tExample 1: python fault_simulator.py -run circuits\s27.txt inputs\s27_input_3.txt outputs\s27_output_3.txt")
+        print("\tExample 2: python fault_simulator.py -run circuits\s27.txt inputs\s27_input_3.txt outputs\s27_output_3.txt faults\s27_fault_1.txt\n")
+        print("Usage 3: ")
+        print("python fault_simulator.py -rand_run NETLIST_FILE_PATH TARGET_COVERAGE [FAULT_FILE_PATH]")
+        print("\tFunction: apply random test vectors to a circuit (defined in NETLIST_FILE), count the number of vectors needed to achieve the TARGET_COVERAGE, considering the faults defined in FAULT_FILE (optional)")
+        print("\tExample 1: python fault_simulator.py -rand_run circuits\s27.txt 0.9")
+        print("\tExample 2: python fault_simulator.py -rand_run circuits\s27.txt 0.9 faults\s27_fault_1.txt\n")
         
     

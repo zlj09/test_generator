@@ -1,0 +1,5 @@
+Num of detected faults: 4
+26 stuck at 1
+70 stuck at 1
+73 stuck at 0
+92 stuck at 0
