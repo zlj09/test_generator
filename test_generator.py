@@ -481,6 +481,7 @@ class Circuit:
     def genTestSet(self):
         test_set = []
         fault_set = set(self.fault_universe)
+        undetectable_fault_num = 0
         while (fault_set):
             self.target_fault = fault_set.pop()
             self.initWireValue([])
@@ -504,9 +505,10 @@ class Circuit:
                 # print(detected_fault_str)
                 fault_set -= new_detected_fault_set
             else:
-                # print("Fault %s is undetectable!" %(self.target_fault))
-                return([])
-        return(test_set)
+                print("Fault %s is undetectable!" %(self.target_fault))
+                undetectable_fault_num += 1
+                fault_set -= set([self.target_fault])
+        return(test_set, undetectable_fault_num)
 
 def run(netlist_path, input_file_path, output_file_path):
     print("***** Logic Simulation ******")
@@ -611,18 +613,18 @@ def gen(netlist_path, test_file_path, fault_file_path = None):
     cir.initFaultUniverse(fault_str_list)
 
     print("Generating test set for the faults...")
-    test_set = cir.genTestSet()
+    test_set, undetectable_fault_num = cir.genTestSet()
 
+    print("Test generation finished! Found %d undetectable faults" % (undetectable_fault_num))
     if (test_set):
-        print("Test generation succeeded! Test vectors are: ")
+        print("Test vectors are: ")
         for test_vec in test_set:
             print(test_vec)
             test_file.write(test_vec + "\n")
         print("Size of the test set: %d" % (len(test_set)))
         print("The test vectors are written into %s" % (test_file_path))
     else:
-        print("Fault %s is undetectable!" %(cir.target_fault))
-        print("Test generation failed!")
+        print("No test vector generated")
 
     print("\n")
 
