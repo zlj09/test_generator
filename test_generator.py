@@ -452,7 +452,7 @@ class Circuit:
             val_next, unknown_list = gate_next.getValue()
             wire_index_next = wire_next.index
 
-            if (wire_j.getValue() in [D, D_bar] and val_next == X):
+            if (wire_j.getValue() in [D, D_bar] and val_next == X and (not gate_next in self.d_frontier)):
                 self.d_frontier.append(gate_next)
             elif (gate_next in self.d_frontier):
                 input_list = [input_wire.getValue() for input_wire in gate_next.driven]
