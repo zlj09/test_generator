@@ -456,7 +456,7 @@ class Circuit:
                 self.d_frontier.append(gate_next)
             elif (gate_next in self.d_frontier):
                 input_list = [input_wire.getValue() for input_wire in gate_next.driven]
-                if (not ((D in input_list) or (D_bar in input_list))):
+                if ((val_next != X) or not ((D in input_list) or (D_bar in input_list))):
                     self.d_frontier.remove(gate_next)
 
             self.imply(wire_index_next, val_next)
